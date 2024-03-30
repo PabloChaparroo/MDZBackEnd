@@ -26,5 +26,5 @@ public class ClienteDTO {
     LocalDate fechaHoraModificacionCliente;
     //Falta direccion
 
-    List<DomicilioDTO> domicilioDTOList;
+    List<DomicilioDTO> domicilio;
 }

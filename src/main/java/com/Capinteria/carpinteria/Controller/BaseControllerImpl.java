@@ -3,7 +3,6 @@ package com.Capinteria.carpinteria.Controller;
 import com.Capinteria.carpinteria.Entity.BaseEntity;
 import com.Capinteria.carpinteria.Service.BaseSeriviceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +13,8 @@ public abstract class BaseControllerImpl<E extends BaseEntity, S extends BaseSer
 
     @Autowired
     protected S servicio;
+
+
 
     @GetMapping("")
     public ResponseEntity<?> getAll() {
@@ -50,8 +51,9 @@ public abstract class BaseControllerImpl<E extends BaseEntity, S extends BaseSer
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\":\"Los datos proporcionados son inválidos o incompletos. Por favor, revise los datos e intente de nuevo.\"}");
 
-        }
+       }
     }
+
 
     @PutMapping("")
     public ResponseEntity<?> saveAll(@RequestBody List<E> entity) {
@@ -84,4 +86,7 @@ public abstract class BaseControllerImpl<E extends BaseEntity, S extends BaseSer
 
         }
     }
+
+
+
 }

@@ -105,7 +105,7 @@ public class AuthService {
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.provisionalPassword))
                 .fechaAltaUsuario(LocalDate.now())
-                .role(Role.fromValorNumerico(request.getIdRole())) //ver numeracion de roles
+                .role(Role.EMPLEADO) //ver numeracion de roles
                 .build();
 
         user.setCliente(cliente);

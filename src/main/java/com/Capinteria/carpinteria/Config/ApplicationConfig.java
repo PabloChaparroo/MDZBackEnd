@@ -51,7 +51,7 @@ public class ApplicationConfig {
         return username -> usuarioRepository.findByUsername(username)
                 .orElseThrow(()-> new UsernameNotFoundException("User not found"));
     }
-
+/*
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -62,5 +62,5 @@ public class ApplicationConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
+*/
 }

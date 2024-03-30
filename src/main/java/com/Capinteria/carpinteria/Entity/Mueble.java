@@ -29,12 +29,22 @@ public class Mueble extends BaseEntity{
     private double precio;
     @Column(name ="descripcion")
     private String descripcion;
-    @Column(name="imagen")
-    private String imagen;
+
+    @Column(name ="fecha_alta")
+    private String fechaAltaMueble;
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "mueble_id")
     private Categoria categoria;
 
 
+
+
+    //@OneToMany(cascade = CascadeType.DETACH, orphanRemoval = true,fetch = FetchType.EAGER)
+    //@JoinColumn(name = "muebleFoto_id")
+    //private List<MuebleImagenesPortada> imagenesPortada = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.DETACH, orphanRemoval = true,fetch = FetchType.EAGER)
+    @JoinColumn(name = "muebleImagen_id")
+    private List<MuebleImagenes> imagenes = new ArrayList<>();
 }

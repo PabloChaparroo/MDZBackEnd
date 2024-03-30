@@ -1,6 +1,11 @@
 package com.Capinteria.carpinteria.enumeration;
 
 public enum Role {
+
+    ADMIN, CLIENTE, EMPLEADO
+
+
+    /*
     CLIENTE(1),
     ADMIN(2),
     EMPLEADO(3);
@@ -20,5 +25,5 @@ public enum Role {
         }
         return null;
     }
-
+¨*/
 }
