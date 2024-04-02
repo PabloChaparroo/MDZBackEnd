@@ -22,4 +22,5 @@ public class MuebleImagenes extends BaseEntity {
     @Column(name = "imagen_imagenes", columnDefinition = "LONGBLOB")
     private byte[] imagenes;
 
+    private boolean esPortada;
 }

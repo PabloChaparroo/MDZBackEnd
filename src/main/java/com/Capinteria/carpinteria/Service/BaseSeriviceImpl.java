@@ -5,6 +5,7 @@ import com.Capinteria.carpinteria.Repositories.BaseRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
 import java.util.List;
@@ -30,6 +31,8 @@ public abstract class BaseSeriviceImpl<E extends BaseEntity, ID extends Serializ
 
         }
     }
+
+
 
     //PAGINACIÓN
     @Override
@@ -98,6 +101,7 @@ public abstract class BaseSeriviceImpl<E extends BaseEntity, ID extends Serializ
 
         }
     }
+
 
     @Override
     @Transactional

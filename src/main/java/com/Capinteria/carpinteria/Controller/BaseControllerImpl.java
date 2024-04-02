@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 public abstract class BaseControllerImpl<E extends BaseEntity, S extends BaseSeriviceImpl<E, Long>> implements  BaseController<E, Long>  {
 
@@ -75,6 +76,9 @@ public abstract class BaseControllerImpl<E extends BaseEntity, S extends BaseSer
             //estás indicando que la solicitud tiene un formato incorrecto o es inválida.
         }
     }
+
+
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {

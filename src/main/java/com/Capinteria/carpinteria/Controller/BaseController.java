@@ -29,17 +29,10 @@ public interface BaseController <E extends BaseEntity, ID extends Serializable> 
     public ResponseEntity<?> update(@PathVariable ID id,@RequestBody E entity);
 
     public ResponseEntity<?> delete(@PathVariable ID id);
-    //ResponseEntity<?> handleFileUpload(MultipartFile file);
+
 
 
 }
-    //@PathVariable extrae valores de la URL.
-    //@RequestBody convierte datos del cuerpo de la solicitud en un objeto Java.
-    //@PathVariable antes de un parámetro del método en un controlador de Spring,
-    //le indicas a Spring que debe extraer ese valor de la URL.
 
-    /* @RequestBody Esta anotación se utiliza para indicar que un parámetro del método debe extraerse
-    del cuerpo de la solicitud HTTP. Cuando enviamos datos en el cuerpo de una solicitud
-    (por ejemplo, en formato JSON o XML), @RequestBody se utiliza para convertir esos datos en un objeto Java.*/
 
 

@@ -44,7 +44,7 @@ public class Mueble extends BaseEntity{
     //@JoinColumn(name = "muebleFoto_id")
     //private List<MuebleImagenesPortada> imagenesPortada = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.DETACH, orphanRemoval = true,fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.MERGE)
     @JoinColumn(name = "muebleImagen_id")
     private List<MuebleImagenes> imagenes = new ArrayList<>();
 }
