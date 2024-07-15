@@ -1,6 +1,7 @@
 package com.Capinteria.carpinteria.Entity;
 
 import com.Capinteria.carpinteria.enumeration.EstadoCliente;
+import com.Capinteria.carpinteria.enumeration.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,8 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.ArrayList;
+
 @Entity
 @Table(name ="cliente")
 @Data
@@ -34,9 +34,10 @@ public class Cliente extends BaseEntity{
         @Column(name = "fecha_hora_baja_cliente")
         private LocalDate fechaHoraBajaCliente;
 
-        @Column(name = "estado_cliente")
         private EstadoCliente estadoCliente;
 
+
+/*
         //Relaciones
         @OneToMany(cascade = CascadeType.PERSIST, orphanRemoval = true, fetch = FetchType.EAGER)
         @Builder.Default
@@ -55,6 +56,6 @@ public class Cliente extends BaseEntity{
 
                 }
 
-        }
+        }*/
 
 }

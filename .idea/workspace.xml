@@ -4,7 +4,106 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="179b73e8-1ea3-4cc4-b207-c0f4c70ed2ae" name="Changes" comment="" />
+    <list default="true" id="179b73e8-1ea3-4cc4-b207-c0f4c70ed2ae" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Controller/SolicitarVisitaController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Entity/SolicitarVisita.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Repositories/SolicitarVisitaRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Service/SolicitarVisitaService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Service/SolicitarVisitaServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Auth/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Auth/AuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Auth/RegisterEmployeeRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Auth/RegisterEmployeeRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Auth/RegisterRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Auth/RegisterRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/CarpinteriaApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/CarpinteriaApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Controller/ClienteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Controller/ClienteController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Controller/DomicilioController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Controller/MuebleController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Controller/MuebleController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Controller/MuebleImagenesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Controller/MuebleImagenesController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Controller/MuebleImagenesPortadaController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Controller/PedidoController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/DTO/ClienteDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/DTO/ClienteDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Entity/Categoria.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Entity/Categoria.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Entity/Cliente.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Entity/Cliente.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Entity/Domicilio.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Entity/Factura.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Entity/Mueble.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Entity/Mueble.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Entity/MuebleImagenes.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Entity/MuebleImagenes.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Entity/MuebleImagenesPortada.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Entity/Pedido.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Entity/PedidoMueble.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Repositories/ClienteRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Repositories/ClienteRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Repositories/DomicilioRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Repositories/FacturaRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Repositories/MuebleFotoRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Repositories/PedidoRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Repositories/UsuarioRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Repositories/UsuarioRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Service/ClienteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Service/ClienteService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Service/ClienteServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Service/ClienteServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Service/DomicilioService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Service/DomicilioServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Service/FacturaService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Service/FacturaServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Service/MuebleImagenesPortadaService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Service/MuebleImagenesPortadaServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Service/MuebleImagenesServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Service/MuebleImagenesServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Service/PedidoService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/Service/PedidoServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/enumeration/EstadoCliente.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/enumeration/EstadoCliente.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/enumeration/FormaPago.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/enumeration/Role.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/enumeration/Role.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/Capinteria/carpinteria/enumeration/TipoEnvio.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Auth/AuthService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Auth/AuthService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Auth/RegisterEmployeeRequest$RegisterEmployeeRequestBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Auth/RegisterEmployeeRequest$RegisterEmployeeRequestBuilder.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Auth/RegisterEmployeeRequest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Auth/RegisterEmployeeRequest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Auth/RegisterRequest$RegisterRequestBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Auth/RegisterRequest$RegisterRequestBuilder.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Auth/RegisterRequest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Auth/RegisterRequest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/CarpinteriaApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/CarpinteriaApplication.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Controller/ClienteController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Controller/ClienteController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Controller/DomicilioController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Controller/MuebleController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Controller/MuebleController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Controller/MuebleImagenesController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Controller/MuebleImagenesController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Controller/MuebleImagenesPortadaController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Controller/PedidoController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/DTO/ClienteDTO$ClienteDTOBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/DTO/ClienteDTO$ClienteDTOBuilder.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/DTO/ClienteDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/DTO/ClienteDTO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/Categoria$CategoriaBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/Categoria$CategoriaBuilder.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/Categoria.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/Categoria.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/Cliente$ClienteBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/Cliente$ClienteBuilder.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/Cliente.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/Cliente.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/Domicilio$DomicilioBuilder.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/Domicilio.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/Factura.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/Mueble$MuebleBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/Mueble$MuebleBuilder.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/Mueble.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/Mueble.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/MuebleImagenes$MuebleImagenesBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/MuebleImagenes$MuebleImagenesBuilder.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/MuebleImagenes.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/MuebleImagenes.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/MuebleImagenesPortada$MuebleImagenesPortadaBuilder.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/MuebleImagenesPortada.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/Pedido$PedidoBuilder.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/Pedido.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/PedidoMueble$PedidoMuebleBuilder.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Entity/PedidoMueble.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Repositories/ClienteRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Repositories/ClienteRepository.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Repositories/DomicilioRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Repositories/FacturaRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Repositories/MuebleFotoRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Repositories/PedidoRepository.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Service/ClienteService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Service/ClienteService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Service/ClienteServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Service/ClienteServiceImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Service/DomicilioService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Service/DomicilioServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Service/FacturaService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Service/FacturaServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Service/MuebleImagenesPortadaService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Service/MuebleImagenesPortadaServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Service/MuebleImagenesServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Service/MuebleImagenesServiceImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Service/PedidoService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/Service/PedidoServiceImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/enumeration/EstadoCliente.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/enumeration/EstadoCliente.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/enumeration/FormaPago.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/enumeration/Role.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/enumeration/Role.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/Capinteria/carpinteria/enumeration/TipoEnvio.class" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -110,7 +209,35 @@
       <workItem from="1711804862556" duration="10849000" />
       <workItem from="1711989023759" duration="7814000" />
       <workItem from="1712014425670" duration="5914000" />
-      <workItem from="1712071883401" duration="7078000" />
+      <workItem from="1712071883401" duration="7673000" />
+      <workItem from="1712100096627" duration="6865000" />
+      <workItem from="1712165729678" duration="4075000" />
+      <workItem from="1712188818413" duration="740000" />
+      <workItem from="1712261330631" duration="1322000" />
+      <workItem from="1712328714534" duration="1817000" />
+      <workItem from="1712664346142" duration="633000" />
+      <workItem from="1712693006360" duration="1827000" />
+      <workItem from="1712846174480" duration="840000" />
+      <workItem from="1712880657295" duration="6789000" />
+      <workItem from="1712924919210" duration="8474000" />
+      <workItem from="1713029611144" duration="7088000" />
+      <workItem from="1713048099944" duration="11243000" />
+      <workItem from="1713103968778" duration="8704000" />
+      <workItem from="1713300827540" duration="1219000" />
+      <workItem from="1713447947082" duration="2729000" />
+      <workItem from="1713468964837" duration="802000" />
+      <workItem from="1713727146585" duration="126000" />
+      <workItem from="1713878435719" duration="10149000" />
+      <workItem from="1714081961931" duration="615000" />
+      <workItem from="1715541574687" duration="656000" />
+      <workItem from="1715724605423" duration="2502000" />
+      <workItem from="1715805863392" duration="1379000" />
+      <workItem from="1715819209342" duration="1981000" />
+      <workItem from="1715889098902" duration="742000" />
+      <workItem from="1716136142616" duration="1424000" />
+      <workItem from="1716241389184" duration="2181000" />
+      <workItem from="1716298293938" duration="2510000" />
+      <workItem from="1721082384388" duration="302000" />
     </task>
     <servers />
   </component>

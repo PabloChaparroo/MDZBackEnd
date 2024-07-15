@@ -1,8 +1,6 @@
 package com.Capinteria.carpinteria.Controller;
 
 import com.Capinteria.carpinteria.Entity.MuebleImagenes;
-import com.Capinteria.carpinteria.Entity.MuebleImagenesPortada;
-import com.Capinteria.carpinteria.Service.MuebleImagenesPortadaService;
 import com.Capinteria.carpinteria.Service.MuebleImagenesService;
 import com.Capinteria.carpinteria.Service.MuebleImagenesServiceImpl;
 import org.springframework.http.HttpStatus;

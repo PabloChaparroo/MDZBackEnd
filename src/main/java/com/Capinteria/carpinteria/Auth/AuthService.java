@@ -3,13 +3,11 @@ package com.Capinteria.carpinteria.Auth;
 
 import com.Capinteria.carpinteria.Entity.Cliente;
 
-import com.Capinteria.carpinteria.Entity.Domicilio;
 import com.Capinteria.carpinteria.Entity.Usuario;
 import com.Capinteria.carpinteria.Jwt.JwtService;
 import com.Capinteria.carpinteria.Repositories.UsuarioRepository;
 import com.Capinteria.carpinteria.enumeration.EstadoCliente;
 import com.Capinteria.carpinteria.enumeration.Role;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -43,14 +41,14 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
 
-        Domicilio domicilio = Domicilio.builder()
+        /*Domicilio domicilio = Domicilio.builder()
                 .calleDomicilio(request.calleDomicilio)
                 .nroCalleDomicilio(request.getNroCalleDomicilio())
                 .descripcionDomicilio(request.descripcionDomicilio)
                 .localidadDomicilio(request.getLocalidadDomicilio())
                 .provinciaDomicilio(request.getProvinciaDomicilio())
 
-                .build();
+                .build();*/
 
         Cliente cliente = Cliente.builder()
                 .nombreCliente(request.getNombreCliente())
@@ -61,7 +59,7 @@ public class AuthService {
                 .estadoCliente(EstadoCliente.ALTA)
                 .build();
 
-        cliente.agregarDomicilio(domicilio);
+        //cliente.agregarDomicilio(domicilio);
 
         Usuario user = Usuario.builder()
                 .username(request.getUsername())
@@ -83,14 +81,14 @@ public class AuthService {
 
 
 
-        Domicilio domicilio = Domicilio.builder()
+       /* Domicilio domicilio = Domicilio.builder()
                 .calleDomicilio(request.calleDomicilioEmpreado)
                 .nroCalleDomicilio(request.nroCalleDomicilioEmpleado)
                 .descripcionDomicilio(request.descripcionDomicilioEmplreado)
                 .localidadDomicilio(request.localidadDomicilioEmpleado)
                 .provinciaDomicilio(request.provinciaDomicilioEmpleado)
                 .fechaHoraAltaDomicilio(LocalDate.now())
-                .build();
+                .build();*/
 
         Cliente cliente = Cliente.builder()
                 .nombreCliente(request.getNombreEmpleado())

@@ -4,14 +4,13 @@ import com.Capinteria.carpinteria.DTO.ClienteDTO;
 import com.Capinteria.carpinteria.DTO.ClienteModifyDTO;
 import com.Capinteria.carpinteria.DTO.DomicilioDTO;
 import com.Capinteria.carpinteria.Entity.Cliente;
-import com.Capinteria.carpinteria.Entity.Domicilio;
 import com.Capinteria.carpinteria.Entity.Usuario;
 import com.Capinteria.carpinteria.Jwt.JwtService;
 import com.Capinteria.carpinteria.Repositories.BaseRepository;
 import com.Capinteria.carpinteria.Repositories.ClienteRepository;
-import com.Capinteria.carpinteria.Repositories.DomicilioRepository;
 import com.Capinteria.carpinteria.Repositories.UsuarioRepository;
 import com.Capinteria.carpinteria.enumeration.EstadoCliente;
+import jakarta.validation.constraints.Email;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
@@ -31,11 +30,11 @@ public class ClienteServiceImpl extends BaseSeriviceImpl<Cliente, Long> implemen
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @Autowired
-    private DomicilioRepository domicilioRepository;
+    //@Autowired
+    //private DomicilioRepository domicilioRepository;
 
-    @Autowired
-    private DomicilioService domicilioService;
+    //@Autowired
+    //private DomicilioService domicilioService;
 
 
     public ClienteServiceImpl(BaseRepository<Cliente, Long> baseRepository) {
@@ -112,6 +111,7 @@ public class ClienteServiceImpl extends BaseSeriviceImpl<Cliente, Long> implemen
             clienteExistente.setMailCliente(clienteModifyDTO.getMailCliente());
             clienteExistente.setFechaHoraModificacionCliente(LocalDate.now());
 
+            /*
             for (DomicilioDTO domicilioDTO : clienteModifyDTO.getDomicilioDTOList()) {
                 Domicilio domicilioExistente = domicilioRepository.findById(domicilioDTO.getIdDomicilio()).orElse(null);
 
@@ -128,7 +128,7 @@ public class ClienteServiceImpl extends BaseSeriviceImpl<Cliente, Long> implemen
 
                 }
                 System.out.println("#############RESULTADO service: "+domicilioService.domicilioPerteneceAlCliente(domicilioExistente.getId(), clienteModifyDTO.getIdCliente()));
-            }
+            }*/
 
             return clienteRepository.save(clienteExistente);
         } catch (Exception e) {
@@ -152,5 +152,11 @@ public class ClienteServiceImpl extends BaseSeriviceImpl<Cliente, Long> implemen
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
+    }
+
+    @Override
+    public Cliente getClienteByMailCliente(String mailCliente) {
+        // Implementación para buscar un cliente por su correo electrónico en el repositorio
+        return clienteRepository.findByMailCliente(mailCliente);
     }
 }

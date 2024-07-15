@@ -15,5 +15,9 @@ public interface ClienteService extends BaseService<Cliente,Long> {
 
     Cliente deleteCliente(Long idCliente) throws Exception;
 
+    Cliente getClienteByMailCliente(String mailCliente) throws Exception;
+
+
+
 
 }

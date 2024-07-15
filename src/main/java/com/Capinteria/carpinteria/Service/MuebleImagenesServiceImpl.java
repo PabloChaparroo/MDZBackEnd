@@ -1,7 +1,6 @@
 package com.Capinteria.carpinteria.Service;
 
 import com.Capinteria.carpinteria.Entity.MuebleImagenes;
-import com.Capinteria.carpinteria.Entity.MuebleImagenesPortada;
 import com.Capinteria.carpinteria.Repositories.BaseRepository;
 import com.Capinteria.carpinteria.Repositories.MuebleImagenesRepository;
 import org.springframework.beans.factory.annotation.Autowired;

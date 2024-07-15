@@ -25,4 +25,8 @@ public interface ClienteRepository extends BaseRepository<Cliente, Long> {
             nativeQuery = true
     )
     Cliente findClienteByUsername(@Param("username") String username);
+
+    Cliente findByMailCliente(String mailCliente);
+
+
     }

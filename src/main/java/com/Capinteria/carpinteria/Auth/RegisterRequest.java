@@ -1,5 +1,6 @@
 package com.Capinteria.carpinteria.Auth;
 
+import com.Capinteria.carpinteria.enumeration.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,9 +21,9 @@ public class RegisterRequest {
     String mailCliente;
 
     //Domicilio
-    String calleDomicilio;
-    int nroCalleDomicilio;
-    String descripcionDomicilio;
-    String localidadDomicilio;
-    String provinciaDomicilio;
+    //String calleDomicilio;
+    //int nroCalleDomicilio;
+    //String descripcionDomicilio;
+    //String localidadDomicilio;
+    //String provinciaDomicilio;
 }

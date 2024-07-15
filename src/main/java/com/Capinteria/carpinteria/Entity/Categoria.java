@@ -20,7 +20,8 @@ public class Categoria extends BaseEntity{
 
     @Column(name="fecha_alta_categoria")
     private Date fechaAltaCategoria;
-
+    @Column(name="fecha_alta_modificacion")
+    private Date fechaModificacionCategoria;
 
 
 

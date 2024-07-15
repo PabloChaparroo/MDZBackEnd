@@ -18,9 +18,10 @@ import lombok.NoArgsConstructor;
 @Table(name = "mueble_imagenes")
 public class MuebleImagenes extends BaseEntity {
 
+    private boolean esPortada;
     @Lob
     @Column(name = "imagen_imagenes", columnDefinition = "LONGBLOB")
     private byte[] imagenes;
 
-    private boolean esPortada;
+
 }

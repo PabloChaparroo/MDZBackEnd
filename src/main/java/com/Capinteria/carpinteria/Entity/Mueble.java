@@ -32,17 +32,16 @@ public class Mueble extends BaseEntity{
 
     @Column(name ="fecha_alta")
     private String fechaAltaMueble;
+    @Column(name ="fecha_modificacion")
+    private String fechaModificacionMueble;
+    @Column(name ="fecha_baja")
+    private String fechaBajaMueble;
+
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "mueble_id")
     private Categoria categoria;
 
-
-
-
-    //@OneToMany(cascade = CascadeType.DETACH, orphanRemoval = true,fetch = FetchType.EAGER)
-    //@JoinColumn(name = "muebleFoto_id")
-    //private List<MuebleImagenesPortada> imagenesPortada = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.MERGE)
     @JoinColumn(name = "muebleImagen_id")

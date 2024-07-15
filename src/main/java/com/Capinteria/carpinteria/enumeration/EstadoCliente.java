@@ -1,5 +1,5 @@
 package com.Capinteria.carpinteria.enumeration;
 
 public enum EstadoCliente {
-    ALTA, BAJA
+    ALTA, BAJA, MODIFICACION
 }

@@ -59,5 +59,16 @@ public class ClienteController extends BaseControllerImpl<Cliente, ClienteServic
         }
     }
 
+    @GetMapping("/byMailCliente")
+    public ResponseEntity<?> getClienteByMailCliente(@RequestParam String mailCliente) {
+        try {
+            Cliente cliente = servicio.getClienteByMailCliente(mailCliente);
+            return ResponseEntity.status(HttpStatus.OK).body(cliente);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(("{\"error\": \"" + e.getMessage() + "\"}"));
+        }
+    }
+
+
 
 }
