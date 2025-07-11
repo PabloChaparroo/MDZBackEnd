@@ -1,6 +1,5 @@
 package com.Capinteria.carpinteria.Auth;
 
-import com.Capinteria.carpinteria.enumeration.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

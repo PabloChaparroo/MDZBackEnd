@@ -1,21 +1,21 @@
 package com.Capinteria.carpinteria.Entity;
 
-import com.Capinteria.carpinteria.enumeration.EstadoCliente;
-import com.Capinteria.carpinteria.enumeration.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
 
-import java.time.LocalDate;
-
-@Entity
-@Table(name ="cliente")
-@Data
+import com.Capinteria.carpinteria.enumeration.EstadoCliente;
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@Data
+@EqualsAndHashCode(callSuper = false)
 @Builder
+@Table(name = "cliente")
 public class Cliente extends BaseEntity{
         @Column(name = "nombre_cliente")
         private String nombreCliente;
@@ -26,36 +26,15 @@ public class Cliente extends BaseEntity{
         @Column(name = "mail_cliente")
         private String mailCliente;
         @Column(name = "fecha_hora_alta_cliente")
-        private LocalDate fechaHoraAltaCliente;
+        private LocalDateTime fechaHoraAltaCliente;
 
         @Column(name = "fecha_hora_modificacion_cliente")
-        private LocalDate fechaHoraModificacionCliente;
+        private LocalDateTime fechaHoraModificacionCliente;
 
         @Column(name = "fecha_hora_baja_cliente")
-        private LocalDate fechaHoraBajaCliente;
+        private LocalDateTime fechaHoraBajaCliente;
 
         private EstadoCliente estadoCliente;
 
-
-/*
-        //Relaciones
-        @OneToMany(cascade = CascadeType.PERSIST, orphanRemoval = true, fetch = FetchType.EAGER)
-        @Builder.Default
-        @JoinColumn(name = "cliente_id")
-        private List<Domicilio> domicilioList = new ArrayList<>();
-
-        public void agregarDomicilio(Domicilio domi){
-                domicilioList.add(domi);
-        }
-
-        //Agregué para mostrar los domicilios
-        public void mostrarDomicilios(){
-                System.out.println("\n Domicilios de: " + nombreCliente  + apellidoCliente + " : ");
-                for (Domicilio domicilio : domicilioList) {
-                        System.out.println("\nCalle: " + domicilio.getCalleDomicilio() + "\nLocalidad: " + domicilio.getLocalidadDomicilio() + "\nNumero: " + domicilio.getNroCalleDomicilio() );
-
-                }
-
-        }*/
 
 }

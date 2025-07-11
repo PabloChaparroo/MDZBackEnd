@@ -19,17 +19,22 @@ public class JwtService {
 
     private static final String SECRET_KEY="586E3272357538782F413F4428472B4B6250655368566B597033733676397924";
 
+
     public String getToken(UserDetails user) {
-        return getToken(new HashMap<>(), user);
+        return getToken(new HashMap<>(), user, 1000 * 60 * 15); // 15 minutos
     }
 
-    private String getToken(Map<String, Object> extraClaims, UserDetails user) {
+    public String getRefreshToken(UserDetails user) {
+        return getToken(new HashMap<>(), user, 1000 * 60 * 60 * 24 * 7); // 7 días
+    }
+
+    private String getToken(Map<String, Object> extraClaims, UserDetails user, long expirationMillis) {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+1000*60*24))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMillis))
                 .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

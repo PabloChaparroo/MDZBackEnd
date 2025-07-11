@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Optional;
 
 public interface BaseService <E extends BaseEntity, ID extends Serializable> {
     public List<E> findAll() throws Exception;

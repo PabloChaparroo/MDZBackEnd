@@ -6,8 +6,8 @@ import com.Capinteria.carpinteria.Entity.Cliente;
 import com.Capinteria.carpinteria.Entity.Usuario;
 import com.Capinteria.carpinteria.Jwt.JwtService;
 import com.Capinteria.carpinteria.Repositories.UsuarioRepository;
-import com.Capinteria.carpinteria.enumeration.EstadoCliente;
 import com.Capinteria.carpinteria.enumeration.Role;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,39 +27,53 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
+    // Métodos para refresh token
+    public String getUsernameFromRefreshToken(String refreshToken) {
+        try {
+            return jwtService.getUsernameFromToken(refreshToken);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
+    public UserDetails loadUserByUsername(String username) {
+        return usuarioRepository.findByUsername(username).orElse(null);
+    }
+
+    public boolean isRefreshTokenValid(String refreshToken, UserDetails user) {
+        try {
+            return jwtService.isTokenValid(refreshToken, user);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public String generateAccessToken(UserDetails user) {
+        return jwtService.getToken(user);
+    }
+
+    public String generateRefreshToken(UserDetails user) {
+        return jwtService.getRefreshToken(user);
+    }
 
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-        UserDetails user=usuarioRepository.findByUsername(request.getUsername()).orElseThrow();
-        String token=jwtService.getToken(user);
-
+        UserDetails user = usuarioRepository.findByUsername(request.getUsername()).orElseThrow();
         return AuthResponse.builder()
-                .token(token)
+                .token(jwtService.getToken(user))
+                .refreshToken(jwtService.getRefreshToken(user))
                 .build();
     }
 
     public AuthResponse register(RegisterRequest request) {
-
-        /*Domicilio domicilio = Domicilio.builder()
-                .calleDomicilio(request.calleDomicilio)
-                .nroCalleDomicilio(request.getNroCalleDomicilio())
-                .descripcionDomicilio(request.descripcionDomicilio)
-                .localidadDomicilio(request.getLocalidadDomicilio())
-                .provinciaDomicilio(request.getProvinciaDomicilio())
-
-                .build();*/
 
         Cliente cliente = Cliente.builder()
                 .nombreCliente(request.getNombreCliente())
                 .apellidoCliente(request.getApellidoCliente())
                 .telefonoCliente(request.getTelefonoCliente())
                 .mailCliente(request.getMailCliente())
-                .fechaHoraAltaCliente(LocalDate.now())
-                .estadoCliente(EstadoCliente.ALTA)
+                .fechaHoraAltaCliente(java.time.LocalDateTime.now())
                 .build();
-
-        //cliente.agregarDomicilio(domicilio);
 
         Usuario user = Usuario.builder()
                 .username(request.getUsername())
@@ -73,30 +87,19 @@ public class AuthService {
 
         return AuthResponse.builder()
                 .token(jwtService.getToken(user))
+                .refreshToken(jwtService.getRefreshToken(user))
                 .build();
 
     }
 
     public AuthResponse registerEmployee(RegisterEmployeeRequest request) {
 
-
-
-       /* Domicilio domicilio = Domicilio.builder()
-                .calleDomicilio(request.calleDomicilioEmpreado)
-                .nroCalleDomicilio(request.nroCalleDomicilioEmpleado)
-                .descripcionDomicilio(request.descripcionDomicilioEmplreado)
-                .localidadDomicilio(request.localidadDomicilioEmpleado)
-                .provinciaDomicilio(request.provinciaDomicilioEmpleado)
-                .fechaHoraAltaDomicilio(LocalDate.now())
-                .build();*/
-
         Cliente cliente = Cliente.builder()
                 .nombreCliente(request.getNombreEmpleado())
                 .apellidoCliente(request.getApellidoEmpleado())
                 .telefonoCliente(request.getTelefonoEmpleado())
                 .mailCliente(request.getMailEmpleado())
-                .fechaHoraAltaCliente(LocalDate.now())
-                .estadoCliente(EstadoCliente.ALTA)
+                .fechaHoraAltaCliente(java.time.LocalDateTime.now())
                 .build();
 
         Usuario user = Usuario.builder()
@@ -111,6 +114,7 @@ public class AuthService {
 
         return AuthResponse.builder()
                 .token(jwtService.getToken(user))
+                .refreshToken(jwtService.getRefreshToken(user))
                 .build();
 
     }

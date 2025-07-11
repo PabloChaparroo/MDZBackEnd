@@ -5,12 +5,13 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Builder
 @AllArgsConstructor
@@ -39,11 +40,12 @@ public class Mueble extends BaseEntity{
 
 
     @ManyToOne(cascade = CascadeType.DETACH)
-    @JoinColumn(name = "mueble_id")
+    @JoinColumn(name = "categoria_id")
     private Categoria categoria;
 
 
     @OneToMany(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "muebleImagen_id")
+    @JoinColumn(name = "mueble_id")
+    @Builder.Default
     private List<MuebleImagenes> imagenes = new ArrayList<>();
 }

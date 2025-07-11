@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @Table(name = "solitar_visita")
 public class SolicitarVisita extends BaseEntity{
 
@@ -27,12 +29,12 @@ public class SolicitarVisita extends BaseEntity{
 
 
     //Relacion con mueble
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinColumn(name = "id_mueble")
     private Mueble mueble;
 
     //Relacion con el cliente estaban los dos como MERGE
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinColumn(name = "id_cliente")
     private Cliente cliente;
 

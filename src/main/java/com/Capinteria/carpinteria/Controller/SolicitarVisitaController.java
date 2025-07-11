@@ -1,3 +1,4 @@
+
 package com.Capinteria.carpinteria.Controller;
 
 import com.Capinteria.carpinteria.Entity.Cliente;
@@ -13,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -32,35 +32,42 @@ public class SolicitarVisitaController extends BaseControllerImpl<SolicitarVisit
         this.objectMapper = objectMapper;
     }
 
+
+    @PostMapping("/crearConsulta")
+    public ResponseEntity<?> crearConsulta(@RequestBody com.Capinteria.carpinteria.DTO.CrearConsultaDTO crearConsultaDTO) {
+        return solicitarVisitaService.crearConsulta(crearConsultaDTO);
+    }
+
     @PostMapping(value = "/createSolicitarVisita")
     public ResponseEntity<String> createWithVisitAndClient(@RequestParam("solicitarVisita") String solicitarVisitaJson,
-                                                           @RequestParam("mueble") String muebleJson,
-                                                           @RequestParam("cliente") String clienteJson)
-    {
+                                                           @RequestParam("muebleId") Long muebleId,
+                                                           @RequestParam("cliente") String clienteJson) {
         try {
             // Deserializar el JSON a objetos
-            Mueble mueble = objectMapper.readValue(muebleJson, Mueble.class);
             SolicitarVisita solicitarVisita = objectMapper.readValue(solicitarVisitaJson, SolicitarVisita.class);
             Cliente cliente = objectMapper.readValue(clienteJson, Cliente.class);
 
             // Verificar si el cliente ya existe en la base de datos
             Cliente existingCliente = clienteService.getClienteByMailCliente(cliente.getMailCliente());
-
             if (existingCliente == null) {
                 // Si el cliente no existe, crear uno nuevo
                 Cliente newCliente = clienteService.save(cliente);
-                // Asociar la solicitud de visita al nuevo cliente
                 solicitarVisita.setCliente(newCliente);
             } else {
-                // Si el cliente ya existe, asociar la solicitud de visita al cliente existente
                 solicitarVisita.setCliente(existingCliente);
             }
 
-            // Guardar el mueble
-            Mueble savedMueble = muebleService.save(mueble);
-
-            // Asociar la solicitud de visita al mueble
-            solicitarVisita.setMueble(savedMueble);
+            // Buscar el mueble por ID
+            Mueble mueble;
+            try {
+                mueble = muebleService.findById(muebleId);
+            } catch (Exception ex) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al buscar mueble: " + ex.getMessage());
+            }
+            if (mueble == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: Mueble no encontrado con id " + muebleId);
+            }
+            solicitarVisita.setMueble(mueble);
 
             // Guardar la solicitud de visita
             solicitarVisitaService.save(solicitarVisita);
@@ -73,10 +80,22 @@ public class SolicitarVisitaController extends BaseControllerImpl<SolicitarVisit
     }
 
 
-    @GetMapping("/solicitudes")
-    public List<SolicitarVisita> getSolicitudesPaginadas(@RequestParam(defaultValue = "0") int pagina,
-                                                         @RequestParam(defaultValue = "20") int tamanoPagina) {
-        return solicitarVisitaService.getSolicitudesPaginadas(pagina, tamanoPagina);
+
+    @GetMapping("/obtener-consultas/{page}")
+    public ResponseEntity<?> obtenerConsultasPaginadas(@PathVariable("page") int page) {
+        return solicitarVisitaService.obtenerConsultasPaginadas(page);
     }
 
+    @GetMapping("/filtrar-por-nombre")
+    public ResponseEntity<?> filtrarPorNombre(
+            @RequestParam String nombre,
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "20") int tamanoPagina) {
+        return solicitarVisitaService.filtrarPorNombre(nombre, pagina, tamanoPagina);
+    }
+
+    @GetMapping("/obtener-solicitudes-con-mueble/{page}")
+    public ResponseEntity<?> obtenerSolicitudesConMueble(@PathVariable("page") int page) {
+        return solicitarVisitaService.obtenerSolicitudesConMueble(page);
+    }
 }
