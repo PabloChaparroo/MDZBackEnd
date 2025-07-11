@@ -1,6 +1,6 @@
 # Ignorar directorios de build
 target/
-.mvn/wrapper/maven-wrapper.jar
+# .mvn/wrapper/maven-wrapper.jar
 
 # Ignorar archivos de IDE
 .idea/
