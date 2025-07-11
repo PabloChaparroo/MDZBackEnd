@@ -31,9 +31,11 @@ services:
       mysql-db:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/mdzMueblesbd
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
+      DB_HOST: mysql-db
+      DB_PORT: 3306
+      DB_NAME: mdzMueblesbd
+      DB_USER: root
+      DB_PASSWORD: root
     networks:
       - mdzmueblesnet
     restart: unless-stopped
