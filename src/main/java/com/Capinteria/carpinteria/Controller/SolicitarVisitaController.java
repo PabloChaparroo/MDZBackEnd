@@ -1,6 +1,7 @@
 
 package com.Capinteria.carpinteria.Controller;
 
+import com.Capinteria.carpinteria.DTO.CambiarEstadoDTO;
 import com.Capinteria.carpinteria.Entity.Cliente;
 import com.Capinteria.carpinteria.Entity.Mueble;
 import com.Capinteria.carpinteria.Entity.SolicitarVisita;
@@ -43,6 +44,7 @@ public class SolicitarVisitaController extends BaseControllerImpl<SolicitarVisit
                                                            @RequestParam("muebleId") Long muebleId,
                                                            @RequestParam("cliente") String clienteJson) {
         try {
+
             // Deserializar el JSON a objetos
             SolicitarVisita solicitarVisita = objectMapper.readValue(solicitarVisitaJson, SolicitarVisita.class);
             Cliente cliente = objectMapper.readValue(clienteJson, Cliente.class);
@@ -69,6 +71,9 @@ public class SolicitarVisitaController extends BaseControllerImpl<SolicitarVisit
             }
             solicitarVisita.setMueble(mueble);
 
+            // Setear la fecha de alta
+            solicitarVisita.setFechaHoraAltaSolicitarVisita(java.time.LocalDateTime.now().toString());
+
             // Guardar la solicitud de visita
             solicitarVisitaService.save(solicitarVisita);
 
@@ -78,7 +83,11 @@ public class SolicitarVisitaController extends BaseControllerImpl<SolicitarVisit
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar la solicitud: " + e.getMessage());
         }
     }
-
+    
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<?> cambiarEstadoSolicitud(@PathVariable("id") Long id, @RequestBody CambiarEstadoDTO cambiarEstadoDTO) {
+        return solicitarVisitaService.cambiarEstadoSolicitud(id, cambiarEstadoDTO);
+    }
 
 
     @GetMapping("/obtener-consultas/{page}")

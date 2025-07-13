@@ -69,8 +69,10 @@ public class SecurityConfig {
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/solicitarVisita/crearConsulta")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/solicitarVisita/createSolicitarVisita")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/solicitarVisita/obtener-consultas/**", "GET")).authenticated()
+                .requestMatchers(new AntPathRequestMatcher("/api/v1/solicitarVisita/**", "PUT")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/solicitarVisita/**", "GET")).hasAuthority("ADMIN")
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/solicitarVisita/**", "PUT")).hasAuthority("ADMIN")
+            
 
             
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/cliente/**")).hasAuthority("ADMIN")

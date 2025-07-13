@@ -82,7 +82,7 @@ public class SolicitarVisitaServiceImpl extends BaseSeriviceImpl<SolicitarVisita
             
             // Crear solicitud de visita
             SolicitarVisita solicitudVisita = SolicitarVisita.builder()
-                    .fechaHoraAltaSolicitarVisita(crearConsultaDTO.getFechaHoraAltaSolicitarVisita())
+                    .fechaHoraAltaSolicitarVisita(java.time.LocalDateTime.now().toString())
                     .consultaSolicitarVisita(crearConsultaDTO.getConsultaSolicitarVisita())
                     .cliente(clienteGuardado)
                     .mueble(null) // Sin mueble específico
