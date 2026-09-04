@@ -5,12 +5,13 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Builder
 @AllArgsConstructor
@@ -29,12 +30,22 @@ public class Mueble extends BaseEntity{
     private double precio;
     @Column(name ="descripcion")
     private String descripcion;
-    @Column(name="imagen")
-    private String imagen;
+
+    @Column(name ="fecha_alta")
+    private String fechaAltaMueble;
+    @Column(name ="fecha_modificacion")
+    private String fechaModificacionMueble;
+    @Column(name ="fecha_baja")
+    private String fechaBajaMueble;
+
 
     @ManyToOne(cascade = CascadeType.DETACH)
-    @JoinColumn(name = "mueble_id")
+    @JoinColumn(name = "categoria_id")
     private Categoria categoria;
 
 
+    @OneToMany(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "mueble_id")
+    @Builder.Default
+    private List<MuebleImagenes> imagenes = new ArrayList<>();
 }

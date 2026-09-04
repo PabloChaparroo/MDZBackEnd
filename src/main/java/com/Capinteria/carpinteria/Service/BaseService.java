@@ -22,4 +22,5 @@ public interface BaseService <E extends BaseEntity, ID extends Serializable> {
 
     public boolean delete(ID id) throws Exception;
 
+
 }

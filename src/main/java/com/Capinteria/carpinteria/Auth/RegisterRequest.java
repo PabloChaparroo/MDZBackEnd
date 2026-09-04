@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterRequest {
+    int id;
     String username;
     String password;
 
@@ -19,9 +20,9 @@ public class RegisterRequest {
     String mailCliente;
 
     //Domicilio
-    String calleDomicilio;
-    int nroCalleDomicilio;
-    String descripcionDomicilio;
-    String localidadDomicilio;
-    String provinciaDomicilio;
+    //String calleDomicilio;
+    //int nroCalleDomicilio;
+    //String descripcionDomicilio;
+    //String localidadDomicilio;
+    //String provinciaDomicilio;
 }

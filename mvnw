@@ -1,4 +1,9 @@
 #!/bin/sh
+# --- Fix permissions and line endings if needed (for Docker/Linux) ---
+if [ "$(uname)" != "Windows_NT" ]; then
+  chmod +x "$0" 2>/dev/null
+  sed -i 's/\r$//' "$0" 2>/dev/null
+fi
 # ----------------------------------------------------------------------------
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file

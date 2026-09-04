@@ -15,5 +15,16 @@ public interface ClienteService extends BaseService<Cliente,Long> {
 
     Cliente deleteCliente(Long idCliente) throws Exception;
 
+    Cliente getClienteByMailCliente(String mailCliente) throws Exception;
+
+    /**
+     * Crea un nuevo cliente estableciendo automáticamente la fecha de alta
+     * @param cliente Cliente a crear
+     * @return Cliente creado con fecha de alta establecida
+     */
+    Cliente crearCliente(Cliente cliente);
+
+
+
 
 }

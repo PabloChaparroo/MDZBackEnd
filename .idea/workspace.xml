@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="179b73e8-1ea3-4cc4-b207-c0f4c70ed2ae" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Kotlin Class" />
+        <option value="Class" />
+        <option value="Interface" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="2dyfqx8xw4ddoVk2FnmSVlTCSuQ" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;Spring Boot.CarpinteriaApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;&lt;unknown&gt;&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/Disco/DesarrolloDesofware/Carpinteria/MDZMueblesBackEnd&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunManager">
+    <configuration name="CarpinteriaApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="carpinteria" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.Capinteria.carpinteria.CarpinteriaApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-125ca727e0f0-intellij.indexing.shared.core-IU-243.24978.46" />
+        <option value="bundled-js-predefined-d6986cc7102b-76f8388c3a79-JavaScript-IU-243.24978.46" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="179b73e8-1ea3-4cc4-b207-c0f4c70ed2ae" name="Changes" comment="" />
+      <created>1710985433631</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1710985433631</updated>
+      <workItem from="1710985437048" duration="5363000" />
+      <workItem from="1711026053396" duration="7444000" />
+      <workItem from="1711059966640" duration="9029000" />
+      <workItem from="1711466237700" duration="7454000" />
+      <workItem from="1711634008480" duration="386000" />
+      <workItem from="1711638708403" duration="621000" />
+      <workItem from="1711663201511" duration="5021000" />
+      <workItem from="1711713493462" duration="20235000" />
+      <workItem from="1711804862556" duration="10849000" />
+      <workItem from="1711989023759" duration="7814000" />
+      <workItem from="1712014425670" duration="5914000" />
+      <workItem from="1712071883401" duration="7673000" />
+      <workItem from="1712100096627" duration="6865000" />
+      <workItem from="1712165729678" duration="4075000" />
+      <workItem from="1712188818413" duration="740000" />
+      <workItem from="1712261330631" duration="1322000" />
+      <workItem from="1712328714534" duration="1817000" />
+      <workItem from="1712664346142" duration="633000" />
+      <workItem from="1712693006360" duration="1827000" />
+      <workItem from="1712846174480" duration="840000" />
+      <workItem from="1712880657295" duration="6789000" />
+      <workItem from="1712924919210" duration="8474000" />
+      <workItem from="1713029611144" duration="7088000" />
+      <workItem from="1713048099944" duration="11243000" />
+      <workItem from="1713103968778" duration="8704000" />
+      <workItem from="1713300827540" duration="1219000" />
+      <workItem from="1713447947082" duration="2729000" />
+      <workItem from="1713468964837" duration="802000" />
+      <workItem from="1713727146585" duration="126000" />
+      <workItem from="1713878435719" duration="10149000" />
+      <workItem from="1714081961931" duration="615000" />
+      <workItem from="1715541574687" duration="656000" />
+      <workItem from="1715724605423" duration="2502000" />
+      <workItem from="1715805863392" duration="1379000" />
+      <workItem from="1715819209342" duration="1981000" />
+      <workItem from="1715889098902" duration="742000" />
+      <workItem from="1716136142616" duration="1424000" />
+      <workItem from="1716241389184" duration="2181000" />
+      <workItem from="1716298293938" duration="2510000" />
+      <workItem from="1721082384388" duration="302000" />
+      <workItem from="1721083011773" duration="24000" />
+      <workItem from="1721086022376" duration="129000" />
+      <workItem from="1740677678333" duration="125000" />
+      <workItem from="1740704731690" duration="2864000" />
+      <workItem from="1740750752691" duration="7025000" />
+      <workItem from="1740778993424" duration="1496000" />
+      <workItem from="1742768585733" duration="1517000" />
+      <workItem from="1746102463580" duration="111000" />
+      <workItem from="1748300196777" duration="7492000" />
+      <workItem from="1748352788817" duration="1300000" />
+      <workItem from="1748358705172" duration="6243000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="org.springframework.dao.DataAccessException" package="org.springframework.dao" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

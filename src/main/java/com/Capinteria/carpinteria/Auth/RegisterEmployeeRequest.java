@@ -20,9 +20,9 @@ public class RegisterEmployeeRequest {
     String mailEmpleado;
 
     //Domicilio
-    String calleDomicilioEmpreado;
-    int nroCalleDomicilioEmpleado;
-    String descripcionDomicilioEmplreado;
-    String localidadDomicilioEmpleado;
-    String provinciaDomicilioEmpleado;
+    //String calleDomicilioEmpreado;
+    //int nroCalleDomicilioEmpleado;
+    //String descripcionDomicilioEmplreado;
+    //String localidadDomicilioEmpleado;
+    //String provinciaDomicilioEmpleado;
 }

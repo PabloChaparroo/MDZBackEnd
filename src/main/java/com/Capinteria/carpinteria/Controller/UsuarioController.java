@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin(origins = "*")
-@RequestMapping(path = "api/v1/usuario")
+@RequestMapping(path = "api/v1/usuarios")
 public class UsuarioController extends BaseControllerImpl<Usuario, UsuarioServiceImpl> {
 
     @GetMapping("/findUserByUsername")
@@ -16,6 +16,16 @@ public class UsuarioController extends BaseControllerImpl<Usuario, UsuarioServic
         try {
             return ResponseEntity.status(HttpStatus.OK).body(servicio.findUserByUsername(username));
         } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(("{\"error\": \"" + e.getMessage() + "\"}"));
+        }
+    }
+    
+    @GetMapping("/showProfile")
+    public ResponseEntity<?> showProfile(@RequestHeader(name = "Authorization") String token) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(servicio.showProfile(token));
+        } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(("{\"error\": \"" + e.getMessage() + "\"}"));
         }
     }

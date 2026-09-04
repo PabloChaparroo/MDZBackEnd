@@ -3,6 +3,7 @@ package com.Capinteria.carpinteria.Service;
 import com.Capinteria.carpinteria.Entity.BaseEntity;
 import com.Capinteria.carpinteria.Repositories.BaseRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -30,6 +31,8 @@ public abstract class BaseSeriviceImpl<E extends BaseEntity, ID extends Serializ
 
         }
     }
+
+
 
     //PAGINACIÓN
     @Override
@@ -62,15 +65,14 @@ public abstract class BaseSeriviceImpl<E extends BaseEntity, ID extends Serializ
 
     @Override
     @Transactional
-    public E save(E entity) throws Exception {
-        try{
-            entity = baseRepository.save(entity);
-            return entity;
-        } catch (Exception e){
-            throw new Exception("Error al intentar realizar la operación: " + e.getMessage());
-
+    public E save(E entity) {
+        try {
+            return baseRepository.save(entity);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error al intentar guardar la entidad: " + e.getMessage(), e);
         }
     }
+
     @Override
     @Transactional
     public List<E> saveAll(List<E> entity) throws Exception {
@@ -98,6 +100,7 @@ public abstract class BaseSeriviceImpl<E extends BaseEntity, ID extends Serializ
 
         }
     }
+
 
     @Override
     @Transactional

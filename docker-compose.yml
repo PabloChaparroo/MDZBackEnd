@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # Base de datos MySQL
+  mysql-db:
+    image: mysql:8.0
+    container_name: mdzmueblesbd
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mdzmueblesbd
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - mdzmueblesnet
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Aplicación Spring Boot
+  mdzmueblesback:
+    build: .
+    container_name: mdzmueblesback
+    ports:
+      - "8081:8081"
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql-db
+      DB_PORT: 3306
+      DB_NAME: mdzmueblesbd
+      DB_USER: root
+      DB_PASSWORD: root
+    networks:
+      - mdzmueblesnet
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  mdzmueblesnet:
+    driver: bridge

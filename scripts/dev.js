@@ -102,16 +102,17 @@ async function main() {
     console.error("No se pudo levantar el contenedor de MySQL. Revisá los logs con: npm run db:logs");
     process.exit(composeStatus ?? 1);
   }
-  console.log("MySQL listo en localhost:3306 (base de datos: carpinteriadb).");
+  console.log("MySQL listo en localhost:3306 (base de datos: mdzmueblesbd).");
 
   console.log(
-    "\nIniciando el backend (Spring Boot). El esquema de la base de datos se " +
-    "crea/actualiza automáticamente al arrancar (ddl-auto=create)...\n"
+    "\nIniciando el backend (Spring Boot, perfil 'local'). El esquema de la base de " +
+    "datos se actualiza automáticamente al arrancar (ddl-auto=update)...\n"
   );
   const mvnwPath = path.join(root, isWindows ? "mvnw.cmd" : "mvnw");
+  const springArgs = "-Dspring-boot.run.profiles=local";
   const backendStatus = isWindows
-    ? runShellCommand(`"${mvnwPath}" spring-boot:run`)
-    : run(mvnwPath, ["spring-boot:run"]);
+    ? runShellCommand(`"${mvnwPath}" spring-boot:run ${springArgs}`)
+    : run(mvnwPath, ["spring-boot:run", springArgs]);
   process.exit(backendStatus ?? 0);
 }
 
