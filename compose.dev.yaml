@@ -1,0 +1,19 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: mdz-mysql-dev
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: carpinteriadb
+    ports:
+      - "3306:3306"
+    volumes:
+      - mdz-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mdz-mysql-data:

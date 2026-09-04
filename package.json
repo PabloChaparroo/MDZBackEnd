@@ -1,0 +1,12 @@
+{
+  "name": "mdzbackend-dev",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Scripts de desarrollo: levantan MySQL en Docker y el backend Spring Boot (Java).",
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "db:up": "docker compose -f compose.dev.yaml up -d --wait",
+    "db:down": "docker compose -f compose.dev.yaml down",
+    "db:logs": "docker compose -f compose.dev.yaml logs -f db"
+  }
+}
