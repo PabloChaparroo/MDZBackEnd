@@ -31,9 +31,9 @@
 - **GET** 🟢 - **PÚBLICO** (Ver imágenes)
 - **POST/PUT/DELETE** 🔴 - **SOLO ADMIN** (Gestión de imágenes)
 
-### 📅 **SOLICITAR VISITA (`/api/v1/solicitarVisita/**`)**
-- **TODOS LOS MÉTODOS** 🔴 - **SOLO ADMIN**
-  - GET, POST, PUT, DELETE - Gestión completa de visitas
+### 💬 **CONSULTAS (`/api/v1/consultas/**`)**
+- **POST `/crear`** 🟢 - **PÚBLICO** (el cliente consulta por un mueble)
+- **GET** 🔴 - **SOLO ADMIN** (ver y filtrar consultas recibidas)
 
 ### 👥 **CLIENTES (`/api/v1/cliente/**`)**
 - **TODOS LOS MÉTODOS** 🔴 - **SOLO ADMIN**
@@ -71,19 +71,20 @@ POST /api/v1/mueble/create
 PUT /api/v1/mueble/modificar/1
 DELETE /api/v1/mueble/baja-logica/1
 GET /api/v1/cliente
-POST /api/v1/solicitarVisita
+GET /api/v1/consultas/obtener-consultas/0
 ```
 
 ### 👷 **Usuario EMPLEADO/CLIENTE**
 ```bash
-# ✅ PERMITIDO - Solo ver catálogo público
+# ✅ PERMITIDO - Solo ver catálogo público y consultar
 GET /api/v1/mueble/obtener-todos-muebles/0
 GET /api/v1/categoria
+POST /api/v1/consultas/crear
 
 # ❌ PROHIBIDO - Gestión administrativa
 POST /api/v1/mueble/create
 GET /api/v1/cliente
-POST /api/v1/solicitarVisita
+GET /api/v1/consultas/obtener-consultas/0
 ```
 
 ## 🔐 **Autenticación**

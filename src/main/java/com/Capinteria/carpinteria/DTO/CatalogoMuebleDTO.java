@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -16,9 +15,6 @@ public class CatalogoMuebleDTO {
     private Long id;
     private String nombreMueble;
     private String colorMueble;
-    private String dimension;
-    private String tipoMadera;
-    private BigDecimal precio;
     private String descripcion;
     private String fechaAltaMueble;
     private String fechaModificacionMueble;

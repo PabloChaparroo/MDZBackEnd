@@ -145,7 +145,6 @@ public class ClienteServiceImpl extends BaseSeriviceImpl<Cliente, Long> implemen
             Cliente clienteExistente = findById(idCliente);
 
             clienteExistente.setFechaHoraBajaCliente(LocalDateTime.now());
-            // Nota: EstadoCliente no está definido en la entidad Cliente actual
 
             Usuario usuario = usuarioRepository.findUsuarioByClienteId(idCliente);
 

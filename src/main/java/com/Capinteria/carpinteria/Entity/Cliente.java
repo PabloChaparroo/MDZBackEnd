@@ -8,7 +8,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
-import com.Capinteria.carpinteria.enumeration.EstadoCliente;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -33,8 +32,5 @@ public class Cliente extends BaseEntity{
 
         @Column(name = "fecha_hora_baja_cliente")
         private LocalDateTime fechaHoraBajaCliente;
-
-        private EstadoCliente estadoCliente;
-
 
 }

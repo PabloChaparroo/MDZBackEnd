@@ -20,7 +20,6 @@ package com.Capinteria.carpinteria.Service;
     import org.springframework.web.multipart.MultipartFile;
 
     import java.io.IOException;
-    import java.math.BigDecimal;
     import java.time.LocalDateTime;
     import java.time.format.DateTimeFormatter;
     import java.util.ArrayList;
@@ -71,8 +70,8 @@ package com.Capinteria.carpinteria.Service;
                     return ResponseEntity.badRequest().body("El objeto Mueble no puede ser nulo");
                 }
                 
-                logger.info("[MUEBLE] Nombre: {}, Color: {}, Precio: {}", 
-                        mueble.getNombreMueble(), mueble.getColorMueble(), mueble.getPrecio());
+                logger.info("[MUEBLE] Nombre: {}, Color: {}",
+                        mueble.getNombreMueble(), mueble.getColorMueble());
 
                 // Paso 2: Buscar y asignar la categoría
                 logger.info("[CATEGORIA] Buscando categoría con ID: {}", categoriaId);
@@ -239,43 +238,14 @@ package com.Capinteria.carpinteria.Service;
                         dto.setId(((Number) row[0]).longValue());
                         dto.setNombreMueble((String) row[1]);
                         dto.setColorMueble((String) row[2]);
-                        dto.setDimension((String) row[3]);
-                        
-                        // Manejar el enum TipoMadera correctamente
-                        if (row[4] != null) {
-                            // Si viene como número (ordinal del enum), convertirlo
-                            if (row[4] instanceof Number) {
-                                int ordinal = ((Number) row[4]).intValue();
-                                dto.setTipoMadera(ordinal == 0 ? "MELAMINA" : "DESCONOCIDO");
-                            } else {
-                                dto.setTipoMadera(row[4].toString());
-                            }
-                        } else {
-                            dto.setTipoMadera("SIN_DEFINIR");
-                        }
-                        
-                        // Convertir precio de Double a BigDecimal
-                        if (row[5] != null) {
-                            if (row[5] instanceof BigDecimal) {
-                                dto.setPrecio((BigDecimal) row[5]);
-                            } else if (row[5] instanceof Double) {
-                                dto.setPrecio(BigDecimal.valueOf((Double) row[5]));
-                            } else if (row[5] instanceof Number) {
-                                dto.setPrecio(BigDecimal.valueOf(((Number) row[5]).doubleValue()));
-                            } else {
-                                dto.setPrecio(null);
-                            }
-                        } else {
-                            dto.setPrecio(null);
-                        }
-                        dto.setDescripcion((String) row[6]);
-                        dto.setFechaAltaMueble((String) row[7]);
-                        dto.setFechaModificacionMueble((String) row[8]);
-                        dto.setNombreCategoria((String) row[9]);
-                        
+                        dto.setDescripcion((String) row[3]);
+                        dto.setFechaAltaMueble((String) row[4]);
+                        dto.setFechaModificacionMueble((String) row[5]);
+                        dto.setNombreCategoria((String) row[6]);
+
                         // Convertir imagen a Base64 si existe
-                        if (row[10] != null) {
-                            byte[] imagen = (byte[]) row[10];
+                        if (row[7] != null) {
+                            byte[] imagen = (byte[]) row[7];
                             dto.setImagenPortada(java.util.Base64.getEncoder().encodeToString(imagen));
                             logger.debug("Imagen portada convertida para mueble ID: {}", dto.getId());
                         } else {
@@ -353,9 +323,6 @@ package com.Capinteria.carpinteria.Service;
                         muebleCompleto.put("id", mueble.getId());
                         muebleCompleto.put("nombreMueble", mueble.getNombreMueble());
                         muebleCompleto.put("colorMueble", mueble.getColorMueble());
-                        muebleCompleto.put("dimension", mueble.getDimension());
-                        muebleCompleto.put("tipoMadera", mueble.getTipoMadera() != null ? mueble.getTipoMadera().toString() : null);
-                        muebleCompleto.put("precio", mueble.getPrecio());
                         muebleCompleto.put("descripcion", mueble.getDescripcion());
                         muebleCompleto.put("fechaAltaMueble", mueble.getFechaAltaMueble());
                         muebleCompleto.put("fechaModificacionMueble", mueble.getFechaModificacionMueble());
@@ -543,9 +510,6 @@ package com.Capinteria.carpinteria.Service;
                 // Paso 2: Actualizar campos
                 muebleExistente.setNombreMueble(muebleActualizado.getNombreMueble());
                 muebleExistente.setColorMueble(muebleActualizado.getColorMueble());
-                muebleExistente.setDimension(muebleActualizado.getDimension());
-                muebleExistente.setTipoMadera(muebleActualizado.getTipoMadera());
-                muebleExistente.setPrecio(muebleActualizado.getPrecio());
                 muebleExistente.setDescripcion(muebleActualizado.getDescripcion());
                 
                 // Establecer fecha de modificación
@@ -598,53 +562,38 @@ package com.Capinteria.carpinteria.Service;
                         try {
                             // Formatear fechas - manejar tanto String como LocalDateTime
                             String fechaAlta = null;
-                            if (result[7] != null) {
-                                if (result[7] instanceof LocalDateTime) {
-                                    fechaAlta = ((LocalDateTime) result[7]).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                            if (result[4] != null) {
+                                if (result[4] instanceof LocalDateTime) {
+                                    fechaAlta = ((LocalDateTime) result[4]).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                                 } else {
-                                    fechaAlta = result[7].toString();
+                                    fechaAlta = result[4].toString();
                                 }
                             }
-                            
+
                             String fechaModificacion = null;
-                            if (result[8] != null) {
-                                if (result[8] instanceof LocalDateTime) {
-                                    fechaModificacion = ((LocalDateTime) result[8]).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                            if (result[5] != null) {
+                                if (result[5] instanceof LocalDateTime) {
+                                    fechaModificacion = ((LocalDateTime) result[5]).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                                 } else {
-                                    fechaModificacion = result[8].toString();
+                                    fechaModificacion = result[5].toString();
                                 }
                             }
-                            
+
                             // Convertir imagen a Base64 si existe
                             String imagenPortadaBase64 = null;
-                            if (result[10] != null) {
-                                byte[] imagenBytes = (byte[]) result[10];
+                            if (result[7] != null) {
+                                byte[] imagenBytes = (byte[]) result[7];
                                 imagenPortadaBase64 = java.util.Base64.getEncoder().encodeToString(imagenBytes);
                             }
-                            
-                            // Manejo seguro del precio - puede venir como Double o BigDecimal
-                            BigDecimal precio = null;
-                            if (result[5] != null) {
-                                if (result[5] instanceof BigDecimal) {
-                                    precio = (BigDecimal) result[5];
-                                } else if (result[5] instanceof Double) {
-                                    precio = BigDecimal.valueOf((Double) result[5]);
-                                } else if (result[5] instanceof Number) {
-                                    precio = BigDecimal.valueOf(((Number) result[5]).doubleValue());
-                                }
-                            }
-                            
+
                             CatalogoMuebleDTO dto = CatalogoMuebleDTO.builder()
                                 .id(((Number) result[0]).longValue())
                                 .nombreMueble(result[1] != null ? result[1].toString() : null)
                                 .colorMueble(result[2] != null ? result[2].toString() : null)
-                                .dimension(result[3] != null ? result[3].toString() : null)
-                                .tipoMadera(result[4] != null ? result[4].toString() : null)
-                                .precio(precio)
-                                .descripcion(result[6] != null ? result[6].toString() : null)
+                                .descripcion(result[3] != null ? result[3].toString() : null)
                                 .fechaAltaMueble(fechaAlta)
                                 .fechaModificacionMueble(fechaModificacion)
-                                .nombreCategoria(result[9] != null ? result[9].toString() : null)
+                                .nombreCategoria(result[6] != null ? result[6].toString() : null)
                                 .imagenPortada(imagenPortadaBase64)
                                 .build();
                             return dto;
@@ -700,9 +649,6 @@ package com.Capinteria.carpinteria.Service;
                             .id(mueble.getId())
                             .nombreMueble(mueble.getNombreMueble())
                             .colorMueble(mueble.getColorMueble())
-                            .dimension(mueble.getDimension())
-                            .tipoMadera(mueble.getTipoMadera() != null ? mueble.getTipoMadera().toString() : "SIN_DEFINIR")
-                            .precio(new BigDecimal(mueble.getPrecio()))
                             .descripcion(mueble.getDescripcion())
                             .fechaAltaMueble(mueble.getFechaAltaMueble())
                             .fechaModificacionMueble(mueble.getFechaModificacionMueble())
@@ -895,32 +841,20 @@ package com.Capinteria.carpinteria.Service;
                 }
                 
                 logger.info("✅ [IMAGEN-ENCONTRADA] Imagen encontrada - ID: {}", imagenId);
-                
-                // Buscar el mueble que contiene esta imagen
-                Mueble muebleContenedor = null;
-                List<Mueble> todosMuebles = muebleRepository.findAll();
-                
-                for (Mueble mueble : todosMuebles) {
-                    if (mueble.getImagenes() != null) {
-                        for (MuebleImagenes img : mueble.getImagenes()) {
-                            if (img.getId().equals(imagenId)) {
-                                muebleContenedor = mueble;
-                                break;
-                            }
-                        }
-                        if (muebleContenedor != null) break;
-                    }
-                }
-                
+
+                // Buscar el mueble que contiene esta imagen (consulta directa, sin recorrer todo el catálogo)
+                Long muebleId = muebleRepository.findMuebleIdByImagenId(imagenId);
+                Mueble muebleContenedor = muebleId != null ? muebleRepository.findById(muebleId).orElse(null) : null;
+
                 if (muebleContenedor == null) {
                     logger.warn("⚠️ [MUEBLE-NO-ENCONTRADO] No se encontró el mueble que contiene la imagen ID: {}", imagenId);
                     return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("{\"error\":\"No se encontró el mueble que contiene esta imagen\"}");
                 }
-                
-                logger.info("✅ [MUEBLE-ENCONTRADO] Imagen pertenece al mueble: {} (ID: {})", 
+
+                logger.info("✅ [MUEBLE-ENCONTRADO] Imagen pertenece al mueble: {} (ID: {})",
                         muebleContenedor.getNombreMueble(), muebleContenedor.getId());
-                
+
                 // Verificar si la imagen ya es portada
                 if (imagenNuevaPortada.isEsPortada()) {
                     logger.info("ℹ️ [YA-ES-PORTADA] La imagen ID {} ya es la portada actual", imagenId);
@@ -992,23 +926,11 @@ package com.Capinteria.carpinteria.Service;
                 }
                 boolean eraPortada = imagen.isEsPortada();
                 logger.info("✅ [IMAGEN-ENCONTRADA] Imagen encontrada - ID: {}, Es portada: {}", imagenId, eraPortada);
-                
-                // Buscar el mueble que contiene esta imagen
-                Mueble muebleContenedor = null;
-                List<Mueble> todosMuebles = muebleRepository.findAll();
-                
-                for (Mueble mueble : todosMuebles) {
-                    if (mueble.getImagenes() != null) {
-                        for (MuebleImagenes img : mueble.getImagenes()) {
-                            if (img.getId().equals(imagenId)) {
-                                muebleContenedor = mueble;
-                                break;
-                            }
-                        }
-                        if (muebleContenedor != null) break;
-                    }
-                }
-                
+
+                // Buscar el mueble que contiene esta imagen (consulta directa, sin recorrer todo el catálogo)
+                Long muebleId = muebleRepository.findMuebleIdByImagenId(imagenId);
+                Mueble muebleContenedor = muebleId != null ? muebleRepository.findById(muebleId).orElse(null) : null;
+
                 if (muebleContenedor != null) {
                     logger.info("✅ [MUEBLE-ENCONTRADO] Imagen pertenece al mueble: {} (ID: {})", 
                             muebleContenedor.getNombreMueble(), muebleContenedor.getId());
@@ -1095,9 +1017,6 @@ package com.Capinteria.carpinteria.Service;
                             .id(mueble.getId())
                             .nombreMueble(mueble.getNombreMueble())
                             .colorMueble(mueble.getColorMueble())
-                            .dimension(mueble.getDimension())
-                            .tipoMadera(mueble.getTipoMadera() != null ? mueble.getTipoMadera().toString() : "SIN_DEFINIR")
-                            .precio(new BigDecimal(mueble.getPrecio()))
                             .descripcion(mueble.getDescripcion())
                             .fechaAltaMueble(mueble.getFechaAltaMueble())
                             .fechaModificacionMueble(mueble.getFechaModificacionMueble())

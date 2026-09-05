@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CrearConsultaDTO {
     private Cliente cliente;
-    private String fechaHoraAltaSolicitarVisita;
-    private String consultaSolicitarVisita;
+    private Long muebleId;
+    private String mensajeConsulta;
 }

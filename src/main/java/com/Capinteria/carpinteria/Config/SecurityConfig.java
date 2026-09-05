@@ -65,14 +65,13 @@ public class SecurityConfig {
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/muebleImagenes/**", "DELETE")).hasAuthority("ADMIN")
 
 
-                // === SOLICITAR VISITA ===
-                .requestMatchers(new AntPathRequestMatcher("/api/v1/solicitarVisita/crearConsulta")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/api/v1/solicitarVisita/createSolicitarVisita")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/api/v1/solicitarVisita/obtener-consultas/**", "GET")).authenticated()
-                .requestMatchers(new AntPathRequestMatcher("/api/v1/solicitarVisita/**", "PUT")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/api/v1/solicitarVisita/**", "GET")).hasAuthority("ADMIN")
-                .requestMatchers(new AntPathRequestMatcher("/api/v1/solicitarVisita/**", "PUT")).hasAuthority("ADMIN")
-            
+                // === CONSULTAS ===
+                .requestMatchers(new AntPathRequestMatcher("/api/v1/consultas/crear")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/api/v1/consultas/**", "GET")).hasAuthority("ADMIN")
+                .requestMatchers(new AntPathRequestMatcher("/api/v1/consultas/**", "POST")).hasAuthority("ADMIN")
+                .requestMatchers(new AntPathRequestMatcher("/api/v1/consultas/**", "PUT")).hasAuthority("ADMIN")
+                .requestMatchers(new AntPathRequestMatcher("/api/v1/consultas/**", "DELETE")).hasAuthority("ADMIN")
+
 
             
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/cliente/**")).hasAuthority("ADMIN")

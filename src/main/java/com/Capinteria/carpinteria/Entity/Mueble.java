@@ -1,6 +1,5 @@
 package com.Capinteria.carpinteria.Entity;
 
-import com.Capinteria.carpinteria.enumeration.TipoMadera;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,12 +21,6 @@ public class Mueble extends BaseEntity{
     private String nombreMueble;
     @Column(name ="colorMueble")
     private String colorMueble;
-    @Column(name = "dimension")
-    private String dimension;
-    @Column(name= "tipoMadera")
-    private TipoMadera tipoMadera;
-    @Column(name = "precio")
-    private double precio;
     @Column(name ="descripcion")
     private String descripcion;
 
