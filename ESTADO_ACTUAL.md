@@ -102,3 +102,24 @@
 - Commitear al terminar cada tarea/feature (no amontonar cambios sin commitear).
 - Este archivo (`ESTADO_ACTUAL.md`) se debe mantener actualizado a medida que se implementan cosas nuevas — agregar una entrada o actualizar la sección correspondiente en vez de reescribir todo el documento.
 - Verificación de cambios de UI/CSS: usar Playwright de forma efímera (instalar, probar con capturas y medición de `getBoundingClientRect`, desinstalar y limpiar al terminar) en vez de confiar solo en lectura de código.
+
+---
+
+## 7. Rediseño visual (en curso, iniciado 2026-10-03)
+
+El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanStack Start + Tailwind + shadcn, repo `github.com/PabloChaparroo/luminous-living-spaces`) y pidió aplicar esa misma estética (fondo oscuro, tipografía Space Grotesk/DM Sans, acentos dorados) a este proyecto, agregando además modo claro, mientras se conservan los módulos de Catálogo, Admin y Perfil.
+
+**Decisión de alcance** (confirmada con el usuario): el tema nuevo se aplica a **todo el sitio**, no solo a la Home. El formulario de contacto sigue usando el backend propio (`ConsultaService`), no el `mailto:` del diseño de referencia.
+
+**Estrategia técnica**: como el repo de referencia usa Tailwind/shadcn (stack distinto al de este frontend, que es React + React-Bootstrap), no se portaron las dependencias — se extrajo la paleta de colores (variables CSS en `oklch`, con un set para oscuro y un set `.mdz-light` para claro) y se reescribió el CSS a mano con clases propias, todas prefijadas `mdz-` para no chocar con el CSS legado de Catálogo/Admin/Perfil.
+
+**Hecho (fase 1 — fundación + Home)**:
+- `src/styles/mdz-theme.css`: variables de color/tipografía + fuentes (DM Sans, Space Grotesk). Aplica `background`/`color` globalmente en `body`, por eso todo el sitio ya hereda el tema aunque sus propios componentes no estén rediseñados todavía.
+- `src/styles/mdz-site.css`: todas las clases `mdz-*` del header, footer y home (botones, hero, grilla de productos, sección "nosotros", proceso, contacto).
+- `src/hooks/useMdzTheme.ts`: toggle claro/oscuro, clase `mdz-light` en `<html>`, persistido en `localStorage` (`mdz-theme`).
+- `Header.tsx`/`Footer.tsx`: reescritos con el nuevo diseño. El header dejó de ser `position: fixed` (ahora `sticky`), lo que de raíz elimina la clase de bugs de "header tapa el contenido en mobile" que se venía parcheando antes.
+- `HomePage.tsx`: reescrita siguiendo la estructura del diseño de referencia (hero con carrusel real de fotos del taller, franja de beneficios, destacados del catálogo con datos reales de la API en vez de productos de ejemplo hardcodeados, sección "la madera es el comienzo", pasos del proceso de trabajo, formulario de contacto que sigue creando Cliente+Consulta vía la API).
+- Imágenes del diseño de referencia copiadas a `src/assets/mdz-design/` (se usan como fallback/demo si hiciera falta, pero la Home usa principalmente fotos reales del taller).
+- Verificado con Playwright en desktop y mobile, modo claro y oscuro: Home, Catálogo, "El taller" — nada roto, el resto de las páginas hereda el fondo/tipografía nuevos pero conserva su estilo propio (gold/negro) encima.
+
+**Pendiente (próxima fase)**: adaptar el CSS propio de Catálogo (`CatalogoMueble.css`), Admin (`AbmCategoriaTabla.css`, `AdministrarSolicitud.css`) y Perfil a la nueva paleta `mdz-*`, para que dejen de verse como una mezcla de dos estilos distintos.
