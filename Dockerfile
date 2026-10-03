@@ -1,5 +1,5 @@
-# Usar OpenJDK 17 como imagen base
-FROM openjdk:17-jdk-slim
+# Usar JDK 21 como imagen base
+FROM mcr.microsoft.com/openjdk/jdk:21-ubuntu
 
 # Establecer el directorio de trabajo en el contenedor
 WORKDIR /app
@@ -19,11 +19,10 @@ RUN ./mvnw dependency:go-offline -B
 COPY src ./src
 
 # Construir la aplicación
- 
 RUN ./mvnw clean package -DskipTests
 
-# Exponer el puerto 8080
-EXPOSE 8080
+# Exponer el puerto de la app (coincide con server.port en application.properties)
+EXPOSE 9091
 
 # Comando para ejecutar la aplicación
 CMD ["java", "-jar", "target/carpinteria-0.0.1-SNAPSHOT.jar"]

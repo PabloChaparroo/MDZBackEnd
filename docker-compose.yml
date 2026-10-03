@@ -7,7 +7,7 @@ services:
     container_name: mdzmueblesbd
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: mdzMueblesbd
+      MYSQL_DATABASE: mdzmueblesbd
       MYSQL_USER: root
       MYSQL_PASSWORD: root
     ports:
@@ -26,14 +26,14 @@ services:
     build: .
     container_name: mdzmueblesback
     ports:
-      - "8080:8080"
+      - "9091:9091"
     depends_on:
       mysql-db:
         condition: service_healthy
     environment:
       DB_HOST: mysql-db
       DB_PORT: 3306
-      DB_NAME: mdzMueblesbd
+      DB_NAME: mdzmueblesbd
       DB_USER: root
       DB_PASSWORD: root
     networks:

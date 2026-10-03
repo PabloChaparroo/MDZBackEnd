@@ -25,6 +25,9 @@ Thumbs.db
 *.swp
 *.swo
 
+# Secretos locales
+.env
+
 # Git
 .git/
 .gitignore

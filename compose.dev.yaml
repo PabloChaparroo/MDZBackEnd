@@ -1,0 +1,29 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: mdz-mysql-dev
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mdzmueblesbd
+    ports:
+      - "3306:3306"
+    volumes:
+      - mdz-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # SMTP falso para desarrollo: los mails "enviados" quedan atrapados acá,
+  # nunca salen a internet. UI web en http://localhost:8025 para verlos.
+  # No requiere usuario/contraseña ni cuenta en ningún lado.
+  mailpit:
+    image: axllent/mailpit
+    container_name: mdz-mailpit-dev
+    ports:
+      - "1125:1025" # SMTP (1025 lo usa otro proyecto en esta máquina)
+      - "8125:8025" # UI web (http://localhost:8125)
+
+volumes:
+  mdz-mysql-data:

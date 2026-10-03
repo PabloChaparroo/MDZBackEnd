@@ -24,8 +24,8 @@ public interface MuebleRepository extends BaseRepository<Mueble, Long> {
     Page<Mueble> findByNombreOrColorContainingAndNotDeleted(@Param("filtro") String filtro, Pageable pageable);
 
     // Consulta nativa optimizada para filtrar muebles por nombre O color con solo imagen de portada
-    @Query(value = "SELECT m.id, m.nombre_mueble, m.color_mueble, m.dimension, m.tipo_madera, " +
-                   "m.precio, m.descripcion, m.fecha_alta, m.fecha_modificacion, " +
+    @Query(value = "SELECT m.id, m.nombre_mueble, m.color_mueble, " +
+                   "m.descripcion, m.fecha_alta, m.fecha_modificacion, " +
                    "c.nombre_categoria, i.imagen_imagenes as imagen_portada " +
                    "FROM mueble m " +
                    "LEFT JOIN categoria c ON m.categoria_id = c.id " +
@@ -39,8 +39,8 @@ public interface MuebleRepository extends BaseRepository<Mueble, Long> {
     // Consulta nativa súper optimizada para catálogo
     // IMPORTANTE: Solo devuelve muebles ACTIVOS (fecha_baja IS NULL)
     // Incluye categoría y solo la imagen de portada convertida automáticamente
-    @Query(value = "SELECT m.id, m.nombre_mueble, m.color_mueble, m.dimension, m.tipo_madera, " +
-                   "m.precio, m.descripcion, m.fecha_alta, m.fecha_modificacion, " +
+    @Query(value = "SELECT m.id, m.nombre_mueble, m.color_mueble, " +
+                   "m.descripcion, m.fecha_alta, m.fecha_modificacion, " +
                    "c.nombre_categoria, i.imagen_imagenes as imagen_portada " +
                    "FROM mueble m " +
                    "LEFT JOIN categoria c ON m.categoria_id = c.id " +
@@ -52,8 +52,8 @@ public interface MuebleRepository extends BaseRepository<Mueble, Long> {
     
     // Consulta nativa optimizada para catálogo filtrada por categoría
     // IMPORTANTE: Solo devuelve muebles ACTIVOS de una categoría específica
-    @Query(value = "SELECT m.id, m.nombre_mueble, m.color_mueble, m.dimension, m.tipo_madera, " +
-                   "m.precio, m.descripcion, m.fecha_alta, m.fecha_modificacion, " +
+    @Query(value = "SELECT m.id, m.nombre_mueble, m.color_mueble, " +
+                   "m.descripcion, m.fecha_alta, m.fecha_modificacion, " +
                    "c.nombre_categoria, i.imagen_imagenes as imagen_portada " +
                    "FROM mueble m " +
                    "LEFT JOIN categoria c ON m.categoria_id = c.id " +
@@ -71,5 +71,9 @@ public interface MuebleRepository extends BaseRepository<Mueble, Long> {
     // Consulta para obtener muebles dados de baja (fecha_baja IS NOT NULL)
     @Query("SELECT m FROM Mueble m WHERE m.fechaBajaMueble IS NOT NULL ORDER BY m.fechaBajaMueble DESC")
     Page<Mueble> findByFechaBajaMuebleIsNotNull(Pageable pageable);
+
+    // Busca el mueble dueño de una imagen puntual sin recorrer toda la tabla
+    @Query(value = "SELECT mueble_id FROM mueble_imagenes WHERE id = :imagenId", nativeQuery = true)
+    Long findMuebleIdByImagenId(@Param("imagenId") Long imagenId);
 
 }
