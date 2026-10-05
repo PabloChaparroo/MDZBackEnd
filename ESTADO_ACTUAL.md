@@ -143,4 +143,9 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - Se eliminó `ViewMueble.css` por quedar sin uso.
 - Verificado con Playwright: navegando real desde el catálogo (con el `state` de React Router que esta página necesita), desktop/mobile, claro/oscuro, miniaturas, pantalla completa.
 
-**Con esto el rediseño visual está completo en todo el sitio** (Home, Header, Footer, Catálogo, ficha de producto, El taller, Admin, Perfil) con una única paleta, tipografía (DM Sans/Space Grotesk) y toggle claro/oscuro compartidos. Posibles mejoras futuras (no pedidas aún): extender el mismo `contentClassName="mdz-modal-content"` a los botones internos de `CatalogoModalMueble`/`ModalGestionImagenes`/`ImagenesModal` (hoy siguen usando `<Button variant="primary/secondary">` de Bootstrap en vez de `mdz-btn`, visualmente aceptable pero no 100% idéntico al resto).
+**Hecho (fase 5 — pulido final de modales, 2026-10-05)**:
+- `CatalogoModalMueble.tsx`, `ModalGestionImagenes.tsx`, `ImagenesModal.tsx`: los `<Button>`/`<span class="badge">` de Bootstrap que quedaban con estilo por defecto (blanco/gris) dentro de los modales se reemplazaron por `mdz-btn`/`mdz-pill`/`mdz-icon-btn`.
+- `ModalGestionImagenes.css` tenía colores hardcodeados pensados solo para fondo claro (blancos, grises de Bootstrap) que no se adaptaban al modal oscuro; se agregó un bloque de overrides scoped a `.mdz-modal-content` que los reemplaza por las variables del tema sin tocar el resto del archivo (layout, animaciones, responsive).
+- Verificado con Playwright: modal "Crear nuevo mueble" (con los campos de Instagram/Facebook), modal de selección de imágenes y modal de gestión de imágenes de un mueble existente, en claro y oscuro.
+
+**Con esto el rediseño visual está completo en todo el sitio** (Home, Header, Footer, Catálogo, ficha de producto, El taller, Admin, Perfil, y todos los modales) con una única paleta, tipografía (DM Sans/Space Grotesk) y toggle claro/oscuro compartidos, consistente de punta a punta.
