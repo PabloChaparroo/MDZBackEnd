@@ -19,6 +19,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+// Ver nota en BaseSeriviceImpl: warnings de nulabilidad por generics sin @NonNull.
+@SuppressWarnings("null")
 public class CategoriaServiceImpl extends BaseSeriviceImpl<Categoria, Long> implements CategoriaService {
 
     private static final Logger logger = LoggerFactory.getLogger(CategoriaServiceImpl.class);

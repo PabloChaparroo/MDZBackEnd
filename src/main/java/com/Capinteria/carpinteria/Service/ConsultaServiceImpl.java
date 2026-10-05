@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+// Ver nota en BaseSeriviceImpl: warnings de nulabilidad por generics sin @NonNull.
+@SuppressWarnings("null")
 public class ConsultaServiceImpl extends BaseSeriviceImpl<Consulta, Long> implements ConsultaService {
 
     private static final Logger logger = LoggerFactory.getLogger(ConsultaServiceImpl.class);

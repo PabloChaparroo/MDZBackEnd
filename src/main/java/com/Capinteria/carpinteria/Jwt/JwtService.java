@@ -14,6 +14,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+// getClaim() pasa un Claims (no-null, viene de getAllClaims()) a un Function<Claims,T>
+// generico sin anotar; el analizador de nulabilidad de Eclipse lo marca como
+// "unchecked conversion" aunque nunca es null en la práctica.
+@SuppressWarnings("null")
 @Service
 public class JwtService {
 

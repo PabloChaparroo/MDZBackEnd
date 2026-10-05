@@ -11,6 +11,12 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 
+// Los métodos genéricos de este service delegan en JpaRepository, cuyos parámetros
+// están anotados @NonNull en Spring Data. Los tipos genéricos E/ID de esta clase no
+// llevan esa anotación (el proyecto no usa esa convención), lo que dispara warnings
+// de "unchecked conversion" del analizador de nulabilidad de Eclipse en cada método.
+// Son ruido, no bugs reales: se silencian acá en vez de anotar cada firma genérica.
+@SuppressWarnings("null")
 public abstract class BaseSeriviceImpl<E extends BaseEntity, ID extends Serializable> implements BaseService<E,ID> {
     protected BaseRepository<E,ID> baseRepository;
 

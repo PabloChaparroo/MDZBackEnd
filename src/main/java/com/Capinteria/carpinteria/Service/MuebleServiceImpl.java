@@ -30,6 +30,8 @@ package com.Capinteria.carpinteria.Service;
     import java.util.stream.Collectors;
 
     @Service
+    // Ver nota en BaseSeriviceImpl: warnings de nulabilidad por generics sin @NonNull.
+    @SuppressWarnings("null")
     public class MuebleServiceImpl extends BaseSeriviceImpl<Mueble, Long> implements MuebleService {
 
         private static final Logger logger = LoggerFactory.getLogger(MuebleServiceImpl.class);
