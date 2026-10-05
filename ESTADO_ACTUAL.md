@@ -122,4 +122,11 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - Imágenes del diseño de referencia copiadas a `src/assets/mdz-design/` (se usan como fallback/demo si hiciera falta, pero la Home usa principalmente fotos reales del taller).
 - Verificado con Playwright en desktop y mobile, modo claro y oscuro: Home, Catálogo, "El taller" — nada roto, el resto de las páginas hereda el fondo/tipografía nuevos pero conserva su estilo propio (gold/negro) encima.
 
-**Pendiente (próxima fase)**: adaptar el CSS propio de Catálogo (`CatalogoMueble.css`), Admin (`AbmCategoriaTabla.css`, `AdministrarSolicitud.css`) y Perfil a la nueva paleta `mdz-*`, para que dejen de verse como una mezcla de dos estilos distintos.
+**Hecho (fase 2 — Catálogo, 2026-10-05)**:
+- `CatalogoMueble.tsx` reescrito reutilizando los componentes `mdz-*` ya creados en la fase 1 (`mdz-product-grid`, `mdz-badge`, `mdz-filters`/`mdz-btn-filter`, `mdz-product-arrow`). Se agregaron a `mdz-site.css` las piezas nuevas que faltaban: `mdz-page-header` (encabezado de página interna), `mdz-search` (buscador tipo pill), `mdz-select` (dropdown de categoría en mobile), `mdz-empty-state`/`mdz-loading-state`.
+- Se mantiene toda la lógica existente intacta (búsqueda con debounce, filtro por categoría, paginación con el componente `Pagination` ya existente, deep-link de categoría desde `ViewMueble`).
+- `CatalogoMueble.css` (el archivo viejo) NO se tocó ni se borró porque `AbmCategoriaTabla.tsx` (Admin) todavía lo usa para su propio banner — se deja para la fase 3.
+- De paso se corrigió un import de imágenes roto en `HomePage.tsx` (`racks`/`fotoAbout` apuntaban a archivos inexistentes por una edición externa al archivo).
+- Verificado con Playwright: desktop claro/oscuro, búsqueda en vivo, mobile con el select de categorías — todo funcionando.
+
+**Pendiente (fase 3)**: adaptar el CSS propio de Admin (`AbmCategoriaTabla.css`, `AdministrarSolicitud.css`, `CatalogoModalMueble.css`) y Perfil a la nueva paleta `mdz-*`, para que dejen de verse como una mezcla de dos estilos distintos. Es la última zona del sitio que todavía usa el look viejo (dorado/negro con `!important`).
