@@ -2,7 +2,7 @@
 
 > Este documento se actualiza cada vez que se implementa o modifica algo relevante en el backend o el frontend. Sirve como fuente de verdad del estado del proyecto para retomar trabajo sin tener que releer todo el código.
 
-Última actualización: 2026-10-03
+Última actualización: 2026-10-05
 
 ---
 
@@ -94,6 +94,17 @@
 - Botón "Mi Perfil" pegado a la izquierda en mobile (en vez de alineado a la derecha) → resuelto con `.topbar-social { margin-left: auto; }` dentro del media query mobile.
 - Badge "Pendiente" con estilo gris apagado → cambiado a estilo ámbar (`bg-warning`) ya existente en el CSS.
 - Bug preexistente en `obtenerImagenesMueble` que devolvía forma de respuesta inconsistente (objeto en vez de array cuando no había imágenes) → corregido.
+
+---
+
+## 5.1 Datos de prueba (seed)
+
+`src/main/java/com/Capinteria/carpinteria/Seed/DataSeeder.java` — carga 8 categorías (Comedor, Dormitorio, Living, Cocina, Oficina, Infantil, Jardín, Baño) con 13 muebles cada una (~104 en total), cada uno con nombre/color/descripción variados y una imagen de portada generada en el momento (no depende de archivos externos: dibuja un rectángulo de color sólido por categoría con el nombre del producto vía `Graphics2D`, lo codifica a PNG).
+
+- Solo se activa con el perfil `seed`: `mvnw spring-boot:run "-Dspring-boot.run.profiles=local,seed"`.
+- Es idempotente: si ya hay 100+ muebles en la base, no hace nada. Correrlo de nuevo no duplica datos.
+- Reutiliza categorías existentes por nombre si ya estaban creadas (no crea duplicados).
+- Verificado (2026-10-05): 104 muebles creados correctamente, imágenes PNG válidas, catálogo público y admin mostrando todo bien paginado.
 
 ---
 
