@@ -2,7 +2,7 @@
 
 > Este documento se actualiza cada vez que se implementa o modifica algo relevante en el backend o el frontend. Sirve como fuente de verdad del estado del proyecto para retomar trabajo sin tener que releer todo el código.
 
-Última actualización: 2026-10-05
+Última actualización: 2026-10-07
 
 ---
 
@@ -160,3 +160,25 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - Verificado con Playwright: modal "Crear nuevo mueble" (con los campos de Instagram/Facebook), modal de selección de imágenes y modal de gestión de imágenes de un mueble existente, en claro y oscuro.
 
 **Con esto el rediseño visual está completo en todo el sitio** (Home, Header, Footer, Catálogo, ficha de producto, El taller, Admin, Perfil, y todos los modales) con una única paleta, tipografía (DM Sans/Space Grotesk) y toggle claro/oscuro compartidos, consistente de punta a punta.
+
+**Hecho (fase 6 — Paginación, El taller con imagen, 2026-10-05)**:
+- `Pagination.tsx`: rediseñado con el sistema `mdz-*` (`mdz-pagination`, `mdz-pagination-btn`, estado `is-active`). Antes tenía estilo propio viejo (tarjeta gris oscura, pill amarilla) que desentonaba; se usa en Catálogo y en las tablas de Admin. Se eliminó `Pagination.css`.
+- `QuienesSomos.tsx`: la sección "Nuestra historia" (texto + estadísticas 15+/500+/100%) dejaba un hueco vacío a la derecha; se agregó la foto del taller (`fotoAbout.jpg`, ya usada en Home) al lado, con layout `mdz-about-text-stats` (texto+stats apilados a la izquierda, imagen a la derecha).
+
+**Hecho (fase 7 — Menú mobile como drawer + animación entre páginas, 2026-10-05)**:
+- `Header.tsx`: el menú mobile pasó de ser un dropdown que empujaba el contenido hacia abajo a un **drawer lateral que se desliza desde la izquierda** (`mdz-mobile-nav` + `mdz-mobile-backdrop`), con fondo oscuro detrás, bloqueo de scroll del body (`body.mdz-no-scroll`) y cierre al tocar el fondo, la X, o al navegar. Queda siempre montado en el DOM y se anima por `transform` + clase `is-open` (permite animar tanto apertura como cierre).
+- `App.tsx`: se agregó `PageTransition` (wrapper con `key={location.pathname}` + clase `mdz-page-transition`) alrededor de `<AppRoutes/>`, que dispara una animación sutil de fade/slide (`mdz-page-enter`) cada vez que cambia de ruta. Respeta `prefers-reduced-motion`.
+
+**Hecho (fase 8 — Detalle visual "diagonal", 2026-10-07)**:
+- Al usuario le gustó el degradé del banner de Mi Perfil y pidió reutilizar ese detalle en los títulos de los modales. Se creó la clase reutilizable `.mdz-diagonal-detail` (degradé `--mdz-secondary` → `--mdz-accent` + textura de rayas diagonales sutiles vía `repeating-linear-gradient`), aplicada a:
+  - El banner de Mi Perfil (de donde salió el detalle original).
+  - Los `mdz-page-header` de Catálogo, Admin Categorías, Admin Consultas y El taller.
+  - El `.modal-header` de **todos** los modales (vía `.mdz-modal-content .modal-header`, sin tocar cada modal individualmente ya que todos comparten esa clase).
+
+### Backend — limpieza de warnings (2026-10-05/07)
+- Se agregaron campos `linkInstagram`/`linkFacebook` opcionales a `Mueble` (ver sección 2), con su endpoint y formulario ya cubiertos en el admin.
+- `DataSeeder` (ver 5.1) agregado y verificado con 104 muebles.
+- Se resolvieron los 25 warnings de nulabilidad que aparecían en el panel "Problems" de VS Code:
+  - 19 eran "unchecked conversion" (falsos positivos) causados por `java.compile.nullAnalysis.mode: "automatic"` en `.vscode/settings.json` (no versionado, en `.gitignore`) — se cambió a `"disabled"` localmente, y además se agregó `@SuppressWarnings("null")` a nivel de clase en `BaseSeriviceImpl`, `CategoriaServiceImpl`, `ConsultaServiceImpl`, `MuebleServiceImpl` y `JwtService` para que la corrección no dependa de que cada quien reinicie el Language Server.
+  - 6 eran reales: `CorsConfig.addCorsMappings` y `JwtAuthenticationFilter.doFilterInternal` sobreescriben métodos de `WebMvcConfigurer`/`OncePerRequestFilter` cuyos parámetros están declarados `@NonNull` en la clase padre; se agregó la anotación correspondiente.
+  - Importante: un primer intento de agregar `@NonNull` también a `BaseSeriviceImpl.findAll(Pageable)` generó un error nuevo ("Illegal redefinition of parameter") porque la interfaz `BaseService` no lo declara así — se revirtió ese cambio puntual.
