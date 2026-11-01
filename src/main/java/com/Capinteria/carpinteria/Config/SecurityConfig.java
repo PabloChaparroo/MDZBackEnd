@@ -39,15 +39,13 @@ public class SecurityConfig {
                 .requestMatchers(new AntPathRequestMatcher("/auth/**")).permitAll()
 
                 // === ARCHIVOS ESTÁTICOS ===
-                .requestMatchers(new AntPathRequestMatcher("/test-profile.html")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/static/**")).permitAll()
 
                 // === MUEBLES - GET público, PUT/POST/DELETE solo ADMIN ===
-                .requestMatchers(new AntPathRequestMatcher("/api/v1/mueble", "GET")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/api/v1/mueble", "GET")).hasAuthority("ADMIN")
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/mueble/**", "GET")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/mueble/**", "POST")).hasAuthority("ADMIN")
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/mueble/**", "PUT")).hasAuthority("ADMIN")
-                .requestMatchers(new AntPathRequestMatcher("/api/v1/mueble/**", "PUT")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/mueble/**", "DELETE")).hasAuthority("ADMIN")
 
                 // === CATEGORÍAS - GET público, PUT/POST/DELETE solo ADMIN ===

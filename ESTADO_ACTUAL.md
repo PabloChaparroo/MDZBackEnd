@@ -202,3 +202,8 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - Verificado con Mailpit para ambos tipos de consulta. Falta configurar un SMTP real.
 
 **Teléfono como texto (2026-11-01)**: `Cliente.telefonoCliente` pasó a `String` (columna `VARCHAR(30)`), porque 10 dígitos no entraban en `int` y fallaba la consulta. En producción hay que correr a mano `db/migration/V4__telefono_cliente_texto.sql` antes de desplegar, porque Hibernate no modifica columnas existentes.
+
+**Optimización previa a producción (2026-11-01)**:
+- Frontend: imágenes en WebP, rutas con carga diferida, `/perfil` y pantallas admin detrás de `PrivateRoute`, gzip y caché en nginx, sin archivos ni dependencias sin uso.
+- Backend: `GET /api/v1/mueble/destacados` para la Home; `catalogo-completo` devuelve solo la portada; `GET /api/v1/mueble` pasó a ser solo ADMIN.
+- El admin inicial usa `ADMIN_PASSWORD` (sin definir, no se crea). En local queda en `application-local.properties`.

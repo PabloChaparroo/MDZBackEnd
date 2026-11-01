@@ -159,6 +159,11 @@ public class MuebleController extends BaseControllerImpl<Mueble, MuebleServiceIm
         }
     }
 
+    @GetMapping("/destacados")
+    public ResponseEntity<?> getDestacados() {
+        return muebleService.getDestacados();
+    }
+
     @GetMapping("/novedades/{pageNumber}")
     public ResponseEntity<?> getNovedades(@PathVariable int pageNumber) {
         return muebleService.getNovedades(pageNumber);

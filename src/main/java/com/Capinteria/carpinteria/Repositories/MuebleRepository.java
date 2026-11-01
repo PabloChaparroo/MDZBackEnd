@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 
 @Repository
 public interface MuebleRepository extends BaseRepository<Mueble, Long> {
@@ -70,6 +72,11 @@ public interface MuebleRepository extends BaseRepository<Mueble, Long> {
 
     // Novedades: muebles activos marcados para publicar al darlos de alta
     Page<Mueble> findByPublicarTrueAndFechaBajaMuebleIsNull(Pageable pageable);
+
+    // Destacados de la Home: el primer mueble activo de cada categoría
+    @Query(value = "SELECT MIN(m.id) FROM mueble m WHERE m.fecha_baja IS NULL AND m.categoria_id IS NOT NULL " +
+                   "GROUP BY m.categoria_id ORDER BY MIN(m.id) LIMIT 8", nativeQuery = true)
+    List<Long> findIdsDestacados();
 
     // Consulta para obtener muebles dados de baja (fecha_baja IS NOT NULL)
     @Query("SELECT m FROM Mueble m WHERE m.fechaBajaMueble IS NOT NULL ORDER BY m.fechaBajaMueble DESC")

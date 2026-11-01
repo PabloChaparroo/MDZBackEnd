@@ -631,29 +631,44 @@ package com.Capinteria.carpinteria.Service;
          * Método para obtener catálogo de muebles con objetos completos incluyendo todas las imágenes
          * Este método retorna la entidad completa con todas sus imágenes para el catálogo del frontend
          */
+        public ResponseEntity<?> getDestacados() {
+            try {
+                List<CatalogoMuebleDTO> destacados = muebleRepository.findAllById(muebleRepository.findIdsDestacados()).stream()
+                    .map(this::aDtoConPortada)
+                    .collect(Collectors.toList());
+                return ResponseEntity.ok(destacados);
+            } catch (Exception e) {
+                logger.error("❌ [DESTACADOS] Error al obtener destacados: {}", e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"error\":\"Error interno del servidor\"}");
+            }
+        }
+
+        private CatalogoMuebleDTO aDtoConPortada(Mueble mueble) {
+            CatalogoMuebleDTO dto = CatalogoMuebleDTO.builder()
+                .id(mueble.getId())
+                .nombreMueble(mueble.getNombreMueble())
+                .colorMueble(mueble.getColorMueble())
+                .descripcion(mueble.getDescripcion())
+                .fechaAltaMueble(mueble.getFechaAltaMueble())
+                .nombreCategoria(mueble.getCategoria() != null ? mueble.getCategoria().getNombreCategoria() : "SIN_CATEGORIA")
+                .build();
+            mueble.getImagenes().stream()
+                .filter(imagen -> imagen.isEsPortada())
+                .findFirst()
+                .ifPresent(portada -> dto.setImagenPortada(
+                    java.util.Base64.getEncoder().encodeToString(portada.getImagenes())
+                ));
+            return dto;
+        }
+
         public ResponseEntity<?> getNovedades(int pageNumber) {
             try {
                 Pageable pageable = PageRequest.of(pageNumber, 9, org.springframework.data.domain.Sort.by("id").descending());
                 Page<Mueble> mueblePage = muebleRepository.findByPublicarTrueAndFechaBajaMuebleIsNull(pageable);
 
                 List<CatalogoMuebleDTO> novedades = mueblePage.getContent().stream()
-                    .map(mueble -> {
-                        CatalogoMuebleDTO dto = CatalogoMuebleDTO.builder()
-                            .id(mueble.getId())
-                            .nombreMueble(mueble.getNombreMueble())
-                            .colorMueble(mueble.getColorMueble())
-                            .descripcion(mueble.getDescripcion())
-                            .fechaAltaMueble(mueble.getFechaAltaMueble())
-                            .nombreCategoria(mueble.getCategoria() != null ? mueble.getCategoria().getNombreCategoria() : "SIN_CATEGORIA")
-                            .build();
-                        mueble.getImagenes().stream()
-                            .filter(imagen -> imagen.isEsPortada())
-                            .findFirst()
-                            .ifPresent(portada -> dto.setImagenPortada(
-                                java.util.Base64.getEncoder().encodeToString(portada.getImagenes())
-                            ));
-                        return dto;
-                    })
+                    .map(this::aDtoConPortada)
                     .collect(Collectors.toList());
 
                 Map<String, Object> response = new HashMap<>();
@@ -696,29 +711,13 @@ package com.Capinteria.carpinteria.Service;
                             .nombreCategoria(mueble.getCategoria() != null ? mueble.getCategoria().getNombreCategoria() : "SIN_CATEGORIA")
                             .build();
                         
-                        // Convertir todas las imágenes a DTO
-                        List<Object> imagenesDTO = mueble.getImagenes().stream()
-                            .map(imagen -> {
-                                Map<String, Object> imagenMap = new HashMap<>();
-                                imagenMap.put("id", imagen.getId());
-                                imagenMap.put("imagenes", java.util.Base64.getEncoder().encodeToString(imagen.getImagenes()));
-                                imagenMap.put("esPortada", imagen.isEsPortada());
-                                return imagenMap;
-                            })
-                            .collect(Collectors.toList());
-                        
-                        dto.setImagenes(imagenesDTO);
-                        
-                        // Mantener compatibilidad con código existente - imagen portada
+                        // Solo la portada: la galería se pide por mueble al abrir su ficha
                         mueble.getImagenes().stream()
                             .filter(imagen -> imagen.isEsPortada())
                             .findFirst()
                             .ifPresent(portada -> dto.setImagenPortada(
                                 java.util.Base64.getEncoder().encodeToString(portada.getImagenes())
                             ));
-                        
-                        logger.debug("Procesado mueble ID: {} con {} imágenes", 
-                                mueble.getId(), imagenesDTO.size());
                         
                         return dto;
                     })

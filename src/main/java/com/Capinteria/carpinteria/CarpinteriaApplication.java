@@ -8,6 +8,7 @@ import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -30,6 +31,9 @@ public class CarpinteriaApplication {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
+	@Value("${mdz.admin.password:}")
+	private String adminPassword;
+
 	public static void main(String[] args) {
 		SpringApplication.run(CarpinteriaApplication.class, args);
 		logger.info(">>> APLICACION INICIADA CORRECTAMENTE - MDZ MUEBLES BACKEND <<<");
@@ -47,6 +51,11 @@ public class CarpinteriaApplication {
 			return;
 		}
 		
+		if (adminPassword.isBlank()) {
+			logger.warn("[SETUP] ADMIN_PASSWORD no está definida: no se crea el usuario administrador.");
+			return;
+		}
+
 		logger.info("[SETUP] Creando usuario administrador por defecto...");
 		
 		Cliente cliente1 = Cliente.builder()
@@ -59,7 +68,7 @@ public class CarpinteriaApplication {
 
 		Usuario user = Usuario.builder()
 				.username("esteban@gmail.com")
-				.password(passwordEncoder.encode("123456")) // ENCRIPTAR la contraseña
+				.password(passwordEncoder.encode(adminPassword)) // ENCRIPTAR la contraseña
 				.fechaAltaUsuario(LocalDate.now())
 				.role(Role.ADMIN)
 				.build();

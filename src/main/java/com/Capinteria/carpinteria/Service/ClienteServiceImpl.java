@@ -80,8 +80,6 @@ public class ClienteServiceImpl extends BaseSeriviceImpl<Cliente, Long> implemen
             String username = jwtService.getUsernameFromToken(jwtToken);
             Cliente clienteExistente = clienteRepository.findClienteByUsername(username);
 
-            //System.out.println("!!!!!!!!nombre clienteActualizado " + clienteActualizado.getNombre());
-            //System.out.println("!!!!!!!!apellido clienteActualizado " + clienteActualizado.getApellido());
 
             // Actualizar los campos del cliente con los nuevos datos
             clienteExistente.setNombreCliente(clienteActualizado.getNombreCliente());
@@ -106,7 +104,6 @@ public class ClienteServiceImpl extends BaseSeriviceImpl<Cliente, Long> implemen
     public Cliente modifyCliente(ClienteModifyDTO clienteModifyDTO) throws Exception {
         try {
             Cliente clienteExistente = findById(clienteModifyDTO.getIdCliente());
-            System.out.println("##################CLIENTE: "+clienteExistente.getId()+clienteExistente.getNombreCliente());
 
             clienteExistente.setNombreCliente(clienteModifyDTO.getNombreCliente());
             clienteExistente.setApellidoCliente(clienteModifyDTO.getApellidoCliente());
@@ -130,7 +127,6 @@ public class ClienteServiceImpl extends BaseSeriviceImpl<Cliente, Long> implemen
 
 
                 }
-                System.out.println("#############RESULTADO service: "+domicilioService.domicilioPerteneceAlCliente(domicilioExistente.getId(), clienteModifyDTO.getIdCliente()));
             }*/
 
             return clienteRepository.save(clienteExistente);

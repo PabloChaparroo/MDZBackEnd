@@ -34,6 +34,7 @@ services:
       DB_HOST: mysql-db
       DB_PORT: 3306
       DB_NAME: mdzmueblesbd
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
       MAIL_HOST: ${MAIL_HOST:-}
       MAIL_PORT: ${MAIL_PORT:-587}
       MAIL_USERNAME: ${MAIL_USERNAME:-}

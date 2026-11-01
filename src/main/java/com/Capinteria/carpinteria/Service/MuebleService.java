@@ -77,6 +77,9 @@ public interface MuebleService extends BaseService<Mueble, Long> {
      */
     ResponseEntity<?> getNovedades(int pageNumber);
 
+    /** Obtiene un mueble activo por categoría (hasta 8) para la portada del sitio. */
+    ResponseEntity<?> getDestacados();
+
     /**
      * Agrega nuevas imágenes a un mueble existente
      * @param muebleId ID del mueble al que agregar las imágenes
