@@ -99,12 +99,14 @@
 
 ## 5.1 Datos de prueba (seed)
 
-`src/main/java/com/Capinteria/carpinteria/Seed/DataSeeder.java` — carga 8 categorías (Comedor, Dormitorio, Living, Cocina, Oficina, Infantil, Jardín, Baño) con 13 muebles cada una (~104 en total), cada uno con nombre/color/descripción variados y una imagen de portada generada en el momento (no depende de archivos externos: dibuja un rectángulo de color sólido por categoría con el nombre del producto vía `Graphics2D`, lo codifica a PNG).
+`src/main/java/com/Capinteria/carpinteria/Seed/DataSeeder.java` — carga 98 muebles con fotos reales en 8 categorías (Cama, Lavatorios, Cocinas, Placares, Escritorios, Estantes, Bibliotecas, Racks), leyendo `src/main/resources/seed/muebles/` (`catalogo.csv` más un JPG por mueble).
 
 - Solo se activa con el perfil `seed`: `mvnw spring-boot:run "-Dspring-boot.run.profiles=local,seed"`.
-- Es idempotente: si ya hay 100+ muebles en la base, no hace nada. Correrlo de nuevo no duplica datos.
+- Es idempotente: saltea los muebles que ya existen con el mismo nombre en su categoría. Correrlo de nuevo no duplica datos.
 - Reutiliza categorías existentes por nombre si ya estaban creadas (no crea duplicados).
-- Verificado (2026-10-05): 104 muebles creados correctamente, imágenes PNG válidas, catálogo público y admin mostrando todo bien paginado.
+- Las fotos son de Wikimedia Commons, con autor y licencia en `seed/muebles/CREDITOS.md`. Son datos de prueba: algunas licencias exigen atribución, así que hay que revisarlas antes de usarlas en producción. Las fotos no son productos de MDZ; nombre, color y descripción son inventados a partir de cada foto.
+- Las 104 placeholders del seeder anterior siguen en la base local: esta versión ya no las genera, pero tampoco las borra.
+- Verificado (2026-11-01): 98 muebles creados con imagen en la base local.
 
 ---
 
