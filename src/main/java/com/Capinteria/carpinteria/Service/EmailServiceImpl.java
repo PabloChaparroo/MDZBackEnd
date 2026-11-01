@@ -48,7 +48,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void notificarNuevaConsulta(String nombreCliente, String mailCliente, int telefonoCliente,
+    public void notificarNuevaConsulta(String nombreCliente, String mailCliente, String telefonoCliente,
                                        String mensajeConsulta, String nombreMueble) {
         CompletableFuture.runAsync(() -> {
             try {
@@ -63,7 +63,7 @@ public class EmailServiceImpl implements EmailService {
                         "Entró una nueva consulta desde la web.\n\n" +
                         "Nombre: " + nombreCliente + "\n" +
                         "Email: " + mailCliente + "\n" +
-                        "Teléfono: " + (telefonoCliente != 0 ? telefonoCliente : "No indicado") + "\n" +
+                        "Teléfono: " + (telefonoCliente != null && !telefonoCliente.isBlank() ? telefonoCliente : "No indicado") + "\n" +
                         "Mueble: " + (nombreMueble != null ? nombreMueble : "Consulta general") + "\n\n" +
                         "Mensaje:\n" + mensajeConsulta
                 );

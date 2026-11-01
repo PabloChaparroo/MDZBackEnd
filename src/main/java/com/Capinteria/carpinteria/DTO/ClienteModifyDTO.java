@@ -16,6 +16,6 @@ public class ClienteModifyDTO {
 
     String nombreCliente;
     String apellidoCliente;
-    int telefonoCliente;
+    String telefonoCliente;
     String mailCliente;
 }

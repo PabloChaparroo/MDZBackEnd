@@ -39,7 +39,7 @@ public class ClienteController extends BaseControllerImpl<Cliente, ClienteServic
                       "\"nombre\":\"" + clienteCreado.getNombreCliente() + "\"," +
                       "\"apellido\":\"" + clienteCreado.getApellidoCliente() + "\"," +
                       "\"email\":\"" + clienteCreado.getMailCliente() + "\"," +
-                      "\"telefono\":" + clienteCreado.getTelefonoCliente() + "," +
+                      "\"telefono\":\"" + clienteCreado.getTelefonoCliente() + "\"," +
                       "\"fechaAlta\":\"" + fechaAltaFormateada + "\"}");
             
         } catch (RuntimeException e) {

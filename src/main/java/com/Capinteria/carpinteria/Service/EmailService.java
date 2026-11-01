@@ -12,6 +12,6 @@ public interface EmailService {
      *
      * @param nombreMueble mueble consultado, o null si es una consulta general
      */
-    void notificarNuevaConsulta(String nombreCliente, String mailCliente, int telefonoCliente,
+    void notificarNuevaConsulta(String nombreCliente, String mailCliente, String telefonoCliente,
                                 String mensajeConsulta, String nombreMueble);
 }

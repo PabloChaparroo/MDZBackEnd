@@ -52,7 +52,7 @@ public class CarpinteriaApplication {
 		Cliente cliente1 = Cliente.builder()
 				.nombreCliente("Esteban")
 				.apellidoCliente("Chaparro")
-				.telefonoCliente(261441926)
+				.telefonoCliente("261441926")
 				.mailCliente("esteban@gmail.com")
 				.fechaHoraAltaCliente(java.time.LocalDateTime.now())
 				.build();

@@ -16,7 +16,7 @@ public class RegisterEmployeeRequest {
 
     String nombreEmpleado;
     String apellidoEmpleado;
-    int telefonoEmpleado;
+    String telefonoEmpleado;
     String mailEmpleado;
 
     //Domicilio

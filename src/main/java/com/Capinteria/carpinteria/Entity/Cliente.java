@@ -21,7 +21,7 @@ public class Cliente extends BaseEntity{
         @Column(name = "apellido_cliente")
         private String apellidoCliente;
         @Column(name = "telefono_cliente")
-        private int telefonoCliente;
+        private String telefonoCliente;
         @Column(name = "mail_cliente")
         private String mailCliente;
         @Column(name = "fecha_hora_alta_cliente")

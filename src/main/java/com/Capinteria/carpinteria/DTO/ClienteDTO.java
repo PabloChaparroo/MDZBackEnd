@@ -18,7 +18,7 @@ public class ClienteDTO {
     Long id;
     String nombreCliente;
     String apellidoCliente;
-    int telefonoCliente;
+    String telefonoCliente;
     String mailCliente;
     LocalDate fechaHoraModificacionCliente;
     //Falta direccion

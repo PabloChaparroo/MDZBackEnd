@@ -16,7 +16,7 @@ public class RegisterRequest {
 
     String nombreCliente;
     String apellidoCliente;
-    int telefonoCliente;
+    String telefonoCliente;
     String mailCliente;
 
     //Domicilio

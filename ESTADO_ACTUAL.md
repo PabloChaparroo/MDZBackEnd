@@ -200,3 +200,5 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - `EmailService.notificarNuevaConsulta`: cada consulta creada (general o de un mueble) avisa a `mdz.mail.admin`, con el cliente como Reply-To. Se envía en segundo plano; si falla, solo queda en el log.
 - `application.properties` y `docker-compose.yml` toman el SMTP de `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM` y `MAIL_ADMIN`. En local sigue yendo a Mailpit (http://localhost:8125).
 - Verificado con Mailpit para ambos tipos de consulta. Falta configurar un SMTP real.
+
+**Teléfono como texto (2026-11-01)**: `Cliente.telefonoCliente` pasó a `String` (columna `VARCHAR(30)`), porque 10 dígitos no entraban en `int` y fallaba la consulta. En producción hay que correr a mano `db/migration/V4__telefono_cliente_texto.sql` antes de desplegar, porque Hibernate no modifica columnas existentes.
