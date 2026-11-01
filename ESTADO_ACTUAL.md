@@ -179,7 +179,7 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 
 ### Backend — limpieza de warnings (2026-10-05/07)
 - Se agregaron campos `linkInstagram`/`linkFacebook` opcionales a `Mueble` (ver sección 2), con su endpoint y formulario ya cubiertos en el admin.
-- `DataSeeder` (ver 5.1) agregado y verificado con 104 muebles.
+- `DataSeeder` (ver 5.1) agregado y verificado con 104 muebles; reemplazado el 2026-11-01 por la versión con 98 muebles y fotos reales.
 - Se resolvieron los 25 warnings de nulabilidad que aparecían en el panel "Problems" de VS Code:
   - 19 eran "unchecked conversion" (falsos positivos) causados por `java.compile.nullAnalysis.mode: "automatic"` en `.vscode/settings.json` (no versionado, en `.gitignore`) — se cambió a `"disabled"` localmente, y además se agregó `@SuppressWarnings("null")` a nivel de clase en `BaseSeriviceImpl`, `CategoriaServiceImpl`, `ConsultaServiceImpl`, `MuebleServiceImpl` y `JwtService` para que la corrección no dependa de que cada quien reinicie el Language Server.
   - 6 eran reales: `CorsConfig.addCorsMappings` y `JwtAuthenticationFilter.doFilterInternal` sobreescriben métodos de `WebMvcConfigurer`/`OncePerRequestFilter` cuyos parámetros están declarados `@NonNull` en la clase padre; se agregó la anotación correspondiente.
