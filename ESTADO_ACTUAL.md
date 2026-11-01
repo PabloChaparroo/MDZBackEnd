@@ -184,3 +184,8 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
   - 19 eran "unchecked conversion" (falsos positivos) causados por `java.compile.nullAnalysis.mode: "automatic"` en `.vscode/settings.json` (no versionado, en `.gitignore`) — se cambió a `"disabled"` localmente, y además se agregó `@SuppressWarnings("null")` a nivel de clase en `BaseSeriviceImpl`, `CategoriaServiceImpl`, `ConsultaServiceImpl`, `MuebleServiceImpl` y `JwtService` para que la corrección no dependa de que cada quien reinicie el Language Server.
   - 6 eran reales: `CorsConfig.addCorsMappings` y `JwtAuthenticationFilter.doFilterInternal` sobreescriben métodos de `WebMvcConfigurer`/`OncePerRequestFilter` cuyos parámetros están declarados `@NonNull` en la clase padre; se agregó la anotación correspondiente.
   - Importante: un primer intento de agregar `@NonNull` también a `BaseSeriviceImpl.findAll(Pageable)` generó un error nuevo ("Illegal redefinition of parameter") porque la interfaz `BaseService` no lo declara así — se revirtió ese cambio puntual.
+
+**Hecho (pulido de la Home, 2026-11-01)**:
+- `HomePage.tsx`: hero a pantalla completa con segundo botón e indicadores, destacados en mosaico con un mueble por categoría (antes eran solo los primeros 6 del catálogo), enlace al catálogo y aparición al hacer scroll con `IntersectionObserver` (`mdz-reveal`). Se quitó el filtro de categorías de la Home.
+- `mdz-site.css`: estilos nuevos acotados a `.mdz-home`, sin cambios en otras páginas.
+- Verificado con Playwright en desktop oscuro/claro y mobile.
