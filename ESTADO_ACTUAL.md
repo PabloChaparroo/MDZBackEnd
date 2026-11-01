@@ -195,3 +195,8 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - Backend: `GET /api/v1/mueble/novedades/{pageNumber}` es público, devuelve 9 por página, solo publicados y activos, del más nuevo al más viejo.
 - Frontend: check "Publicar en Novedades" en el modal de alta, página `/novedades` (`Novedades.tsx`, clases `mdz-feed`/`mdz-post`) y enlace en el menú. Cada publicación muestra categoría, fecha de alta, foto, nombre y color.
 - Los muebles existentes y los del seed quedan sin publicar.
+
+**Hecho (aviso por mail de consultas, 2026-11-01)**:
+- `EmailService.notificarNuevaConsulta`: cada consulta creada (general o de un mueble) avisa a `mdz.mail.admin`, con el cliente como Reply-To. Se envía en segundo plano; si falla, solo queda en el log.
+- `application.properties` y `docker-compose.yml` toman el SMTP de `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM` y `MAIL_ADMIN`. En local sigue yendo a Mailpit (http://localhost:8125).
+- Verificado con Mailpit para ambos tipos de consulta. Falta configurar un SMTP real.

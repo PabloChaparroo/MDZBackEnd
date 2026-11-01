@@ -114,6 +114,13 @@ public class ConsultaServiceImpl extends BaseSeriviceImpl<Consulta, Long> implem
             Consulta consultaGuardada = consultaRepository.save(consulta);
             logger.info("✅ [CONSULTA-CREADA] Consulta creada con ID: {}", consultaGuardada.getId());
 
+            emailService.notificarNuevaConsulta(
+                    (clienteGuardado.getNombreCliente() + " " + clienteGuardado.getApellidoCliente()).trim(),
+                    clienteGuardado.getMailCliente(),
+                    clienteGuardado.getTelefonoCliente(),
+                    consultaGuardada.getMensajeConsulta(),
+                    mueble != null ? mueble.getNombreMueble() : null);
+
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Consulta creada exitosamente");
             response.put("consultaId", consultaGuardada.getId());
