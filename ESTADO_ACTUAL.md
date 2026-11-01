@@ -209,3 +209,5 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - El admin inicial usa `ADMIN_PASSWORD` (sin definir, no se crea). En local queda en `application-local.properties`.
 
 **Mobile (2026-11-01)**: auditoría de todas las pantallas en 360 y 390px. Hasta 640px `.mdz-filters` queda oculto salvo con `.mdz-filters-scroll` (admin). Hasta 760px las tablas se muestran como tarjetas (`mdz-cards-categoria`, `mdz-cards-mueble`, `mdz-cards-consulta`, con etiquetas por posición de columna en CSS: si cambian las columnas hay que actualizarlas) y los campos usan 16px para evitar el zoom de iOS.
+
+**Fotos (2026-11-01)**: `src/utils/comprimirImagen.ts` comprime en el navegador las fotos de más de 1 MB (lado mayor hasta 2000 px, JPEG 85%; PNG sigue en PNG). Mantiene la proporción y, si no puede achicarla, sube la original. El límite por archivo es 10 MB, igual que el backend. La galería de la ficha usa `object-fit: contain` (no recorta); portadas, Novedades y miniaturas siguen con `cover`.
