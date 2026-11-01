@@ -207,3 +207,5 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - Frontend: imágenes en WebP, rutas con carga diferida, `/perfil` y pantallas admin detrás de `PrivateRoute`, gzip y caché en nginx, sin archivos ni dependencias sin uso.
 - Backend: `GET /api/v1/mueble/destacados` para la Home; `catalogo-completo` devuelve solo la portada; `GET /api/v1/mueble` pasó a ser solo ADMIN.
 - El admin inicial usa `ADMIN_PASSWORD` (sin definir, no se crea). En local queda en `application-local.properties`.
+
+**Mobile (2026-11-01)**: auditoría de todas las pantallas en 360 y 390px. Hasta 640px `.mdz-filters` queda oculto salvo con `.mdz-filters-scroll` (admin). Hasta 760px las tablas se muestran como tarjetas (`mdz-cards-categoria`, `mdz-cards-mueble`, `mdz-cards-consulta`, con etiquetas por posición de columna en CSS: si cambian las columnas hay que actualizarlas) y los campos usan 16px para evitar el zoom de iOS.
