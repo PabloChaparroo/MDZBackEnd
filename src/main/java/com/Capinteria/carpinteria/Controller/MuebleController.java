@@ -159,6 +159,11 @@ public class MuebleController extends BaseControllerImpl<Mueble, MuebleServiceIm
         }
     }
 
+    @GetMapping("/novedades/{pageNumber}")
+    public ResponseEntity<?> getNovedades(@PathVariable int pageNumber) {
+        return muebleService.getNovedades(pageNumber);
+    }
+
     @GetMapping("/catalogo-completo/{pageNumber}")
     public ResponseEntity<?> getCatalogoMueblesCompleto(@PathVariable int pageNumber) {
         logger.info("\n=== [API-CATALOGO-COMPLETO] INICIANDO CONSULTA DE MUEBLES COMPLETOS ===");

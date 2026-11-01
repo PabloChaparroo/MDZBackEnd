@@ -68,6 +68,9 @@ public interface MuebleRepository extends BaseRepository<Mueble, Long> {
     
     Page<Mueble> findByCategoriaIdAndFechaBajaMuebleIsNull(Long categoriaId, Pageable pageable);
 
+    // Novedades: muebles activos marcados para publicar al darlos de alta
+    Page<Mueble> findByPublicarTrueAndFechaBajaMuebleIsNull(Pageable pageable);
+
     // Consulta para obtener muebles dados de baja (fecha_baja IS NOT NULL)
     @Query("SELECT m FROM Mueble m WHERE m.fechaBajaMueble IS NOT NULL ORDER BY m.fechaBajaMueble DESC")
     Page<Mueble> findByFechaBajaMuebleIsNotNull(Pageable pageable);

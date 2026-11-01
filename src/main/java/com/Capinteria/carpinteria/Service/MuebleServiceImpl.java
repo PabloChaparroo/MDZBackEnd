@@ -631,6 +631,44 @@ package com.Capinteria.carpinteria.Service;
          * Método para obtener catálogo de muebles con objetos completos incluyendo todas las imágenes
          * Este método retorna la entidad completa con todas sus imágenes para el catálogo del frontend
          */
+        public ResponseEntity<?> getNovedades(int pageNumber) {
+            try {
+                Pageable pageable = PageRequest.of(pageNumber, 9, org.springframework.data.domain.Sort.by("id").descending());
+                Page<Mueble> mueblePage = muebleRepository.findByPublicarTrueAndFechaBajaMuebleIsNull(pageable);
+
+                List<CatalogoMuebleDTO> novedades = mueblePage.getContent().stream()
+                    .map(mueble -> {
+                        CatalogoMuebleDTO dto = CatalogoMuebleDTO.builder()
+                            .id(mueble.getId())
+                            .nombreMueble(mueble.getNombreMueble())
+                            .colorMueble(mueble.getColorMueble())
+                            .descripcion(mueble.getDescripcion())
+                            .fechaAltaMueble(mueble.getFechaAltaMueble())
+                            .nombreCategoria(mueble.getCategoria() != null ? mueble.getCategoria().getNombreCategoria() : "SIN_CATEGORIA")
+                            .build();
+                        mueble.getImagenes().stream()
+                            .filter(imagen -> imagen.isEsPortada())
+                            .findFirst()
+                            .ifPresent(portada -> dto.setImagenPortada(
+                                java.util.Base64.getEncoder().encodeToString(portada.getImagenes())
+                            ));
+                        return dto;
+                    })
+                    .collect(Collectors.toList());
+
+                Map<String, Object> response = new HashMap<>();
+                response.put("content", novedades);
+                response.put("totalElements", mueblePage.getTotalElements());
+                response.put("totalPages", mueblePage.getTotalPages());
+                response.put("number", mueblePage.getNumber());
+                return ResponseEntity.ok(response);
+            } catch (Exception e) {
+                logger.error("❌ [NOVEDADES] Error al obtener novedades: {}", e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"error\":\"Error interno del servidor\"}");
+            }
+        }
+
         public ResponseEntity<?> getCatalogoMueblesCompleto(int pageNumber) {
             logger.info("\n=== [CATALOGO-COMPLETO] INICIANDO CONSULTA DE MUEBLES COMPLETOS ===");
             logger.info("Página solicitada: {}", pageNumber);

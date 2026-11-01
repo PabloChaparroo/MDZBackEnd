@@ -189,3 +189,9 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - `HomePage.tsx`: hero a pantalla completa con segundo botón e indicadores, destacados en mosaico con un mueble por categoría (antes eran solo los primeros 6 del catálogo), enlace al catálogo y aparición al hacer scroll con `IntersectionObserver` (`mdz-reveal`). Se quitó el filtro de categorías de la Home.
 - `mdz-site.css`: estilos nuevos acotados a `.mdz-home`, sin cambios en otras páginas.
 - Verificado con Playwright en desktop oscuro/claro y mobile.
+
+**Hecho (Novedades, 2026-11-01)**:
+- `Mueble.publicar` (boolean, por defecto false): se define solo al crear el mueble. La columna es `updatable = false`, así que una edición no puede cambiarlo.
+- Backend: `GET /api/v1/mueble/novedades/{pageNumber}` es público, devuelve 9 por página, solo publicados y activos, del más nuevo al más viejo.
+- Frontend: check "Publicar en Novedades" en el modal de alta, página `/novedades` (`Novedades.tsx`, clases `mdz-feed`/`mdz-post`) y enlace en el menú. Cada publicación muestra categoría, fecha de alta, foto, nombre y color.
+- Los muebles existentes y los del seed quedan sin publicar.

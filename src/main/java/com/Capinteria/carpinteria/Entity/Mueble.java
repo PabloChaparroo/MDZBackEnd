@@ -29,6 +29,11 @@ public class Mueble extends BaseEntity{
     @Column(name = "link_facebook")
     private String linkFacebook;
 
+    // Se decide solo al dar de alta: updatable = false evita que una edición lo cambie
+    @Column(name = "publicar", nullable = false, updatable = false, columnDefinition = "boolean default false")
+    @Builder.Default
+    private boolean publicar = false;
+
     @Column(name ="fecha_alta")
     private String fechaAltaMueble;
     @Column(name ="fecha_modificacion")

@@ -70,6 +70,14 @@ public interface MuebleService extends BaseService<Mueble, Long> {
     ResponseEntity<?> getCatalogoMueblesCompleto(int pageNumber);
 
     /**
+     * Obtiene las publicaciones de novedades, de la más nueva a la más vieja.
+     *
+     * @param pageNumber número de página
+     * @return ResponseEntity con la página de muebles publicados
+     */
+    ResponseEntity<?> getNovedades(int pageNumber);
+
+    /**
      * Agrega nuevas imágenes a un mueble existente
      * @param muebleId ID del mueble al que agregar las imágenes
      * @param files Lista de archivos de imagen a agregar
