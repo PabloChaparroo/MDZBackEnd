@@ -7,6 +7,7 @@
  *    para no depender de las variables DB_HOST/DB_PORT/etc. que usa Docker/producción.
  */
 const { spawn, spawnSync } = require("child_process");
+const fs = require("fs");
 const path = require("path");
 
 const isWindows = process.platform === "win32";
@@ -86,7 +87,43 @@ async function ensureDockerRunning() {
   process.exit(1);
 }
 
+// Con --smtp-real usa el SMTP del .env en lugar de Mailpit. SPRING_APPLICATION_JSON
+// tiene prioridad sobre application-local.properties.
+function usarSmtpReal() {
+  const envPath = path.join(root, ".env");
+  if (!fs.existsSync(envPath)) {
+    console.error("No se encontró el archivo .env en la carpeta del backend.");
+    process.exit(1);
+  }
+
+  const env = {};
+  for (const linea of fs.readFileSync(envPath, "utf8").split(/\r?\n/)) {
+    const match = linea.match(/^\s*([A-Z_]+)\s*=\s*(.*?)\s*$/);
+    if (match) env[match[1]] = match[2].replace(/^(["'])(.*)\1$/, "$2");
+  }
+
+  const faltantes = ["MAIL_HOST", "MAIL_USERNAME", "MAIL_PASSWORD", "MAIL_ADMIN"].filter((k) => !env[k]);
+  if (faltantes.length > 0) {
+    console.error(`Faltan estos datos en el .env: ${faltantes.join(", ")}`);
+    process.exit(1);
+  }
+
+  process.env.SPRING_APPLICATION_JSON = JSON.stringify({
+    "spring.mail.host": env.MAIL_HOST,
+    "spring.mail.port": env.MAIL_PORT || "587",
+    "spring.mail.username": env.MAIL_USERNAME,
+    "spring.mail.password": env.MAIL_PASSWORD,
+    "spring.mail.properties.mail.smtp.auth": "true",
+    "spring.mail.properties.mail.smtp.starttls.enable": "true",
+    "mdz.mail.from": env.MAIL_FROM || env.MAIL_USERNAME,
+    "mdz.mail.admin": env.MAIL_ADMIN,
+  });
+  console.log(`SMTP real activado (${env.MAIL_HOST}): los mails salen de verdad.`);
+}
+
 async function main() {
+  if (process.argv.includes("--smtp-real")) usarSmtpReal();
+
   await ensureDockerRunning();
 
   console.log("\nLevantando MySQL (Docker: compose.dev.yaml)...");
