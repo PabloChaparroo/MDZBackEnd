@@ -230,4 +230,8 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 **Flyway 10 (2026-11-05)**: se pasó de 9.22.3 (la que trae Spring Boot 3.2.3) a **10.22.0**, la última 10.x, porque 9.x no soporta PostgreSQL 16.
 - `pom.xml`: propiedad `<flyway.version>10.22.0</flyway.version>`, que pisa la versión que gestiona Spring Boot, y la dependencia `flyway-database-postgresql` con `<version>${flyway.version}</version>`. Spring Boot 3.2 no gestiona ese módulo, así que la versión tiene que ir explícita.
 - Verificado con `npm run dev` sobre la base con V1 ya aplicada: "Successfully validated 1 migration", "Schema public is up to date", Hibernate valida y la app arranca. Ya no aparece el warning "Flyway upgrade recommended". Ojo: en el perfil `local` el log de Flyway está en ERROR, así que para ver sus mensajes hay que correr con `LOGGING_LEVEL_ORG_FLYWAYDB=INFO`.
+- Verificación completa con Flyway 10 (2026-11-05):
+  - Base nueva: con `docker compose -f compose.dev.yaml down -v` y `npm run dev`, Flyway creó `flyway_schema_history` y aplicó V1 desde cero ("Successfully applied 1 migration ... now at version v1"). Hibernate validó el esquema y se creó el admin.
+  - Perfil por defecto (`DB_HOST=localhost DB_PORT=5436` y demás `DB_*`): Hikari conecta, Flyway valida V1 ("Schema public is up to date") y la app arranca.
+  - En ninguno de los dos arranques aparece el warning de versión no soportada.
 - Cuando se actualice Spring Boot a 3.3 o más (que ya trae Flyway 10), se pueden sacar la propiedad y la versión explícita.
