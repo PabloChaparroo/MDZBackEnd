@@ -12,7 +12,7 @@ public interface UsuarioRepository extends BaseRepository<Usuario, Long> {
     Optional<Usuario> findByUsername(String username);
 
     @Query(
-            value = "SELECT * FROM Usuario WHERE username = %:username%",
+            value = "SELECT * FROM usuario WHERE username = :username",
             nativeQuery = true
     )
     Usuario findUserByUsername(

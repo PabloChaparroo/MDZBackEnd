@@ -1,22 +1,23 @@
 services:
   db:
-    image: mysql:8.0
-    container_name: mdz-mysql-dev
+    image: postgres:16-alpine
+    container_name: mdz-postgres-dev
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: mdzmueblesbd
+      POSTGRES_DB: mdzmueblesbd
+      POSTGRES_USER: mdz
+      POSTGRES_PASSWORD: mdz
     ports:
-      - "3306:3306"
+      - "5436:5432" # 5432 (Postgres nativo), 5434 y 5435 ya estan ocupados en esta maquina
     volumes:
-      - mdz-mysql-data:/var/lib/mysql
+      - mdz-postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      test: ["CMD-SHELL", "pg_isready -U mdz -d mdzmueblesbd"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   # SMTP falso para desarrollo: los mails "enviados" quedan atrapados acá,
-  # nunca salen a internet. UI web en http://localhost:8025 para verlos.
+  # nunca salen a internet. UI web en http://localhost:8125 para verlos.
   # No requiere usuario/contraseña ni cuenta en ningún lado.
   mailpit:
     image: axllent/mailpit
@@ -26,4 +27,4 @@ services:
       - "8125:8025" # UI web (http://localhost:8125)
 
 volumes:
-  mdz-mysql-data:
+  mdz-postgres-data:

@@ -2,7 +2,7 @@
   "name": "mdzbackend-dev",
   "private": true,
   "version": "1.0.0",
-  "description": "Scripts de desarrollo: levantan MySQL en Docker y el backend Spring Boot (Java).",
+  "description": "Scripts de desarrollo: levantan PostgreSQL en Docker y el backend Spring Boot (Java).",
   "scripts": {
     "dev": "node scripts/dev.js",
     "dev:gmail": "node scripts/dev.js --smtp-real",

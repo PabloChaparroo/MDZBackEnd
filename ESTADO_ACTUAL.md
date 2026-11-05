@@ -2,19 +2,19 @@
 
 > Este documento se actualiza cada vez que se implementa o modifica algo relevante en el backend o el frontend. Sirve como fuente de verdad del estado del proyecto para retomar trabajo sin tener que releer todo el código.
 
-Última actualización: 2026-10-07
+Última actualización: 2026-11-05
 
 ---
 
 ## 1. Arquitectura general
 
-- **Backend**: Java 17, Spring Boot 3.2.3, Spring Data JPA/Hibernate (`ddl-auto=update` en perfil `local`), Spring Security con JWT, Spring Mail.
+- **Backend**: Java 17, Spring Boot 3.2.3, Spring Data JPA/Hibernate (`ddl-auto=validate`, el esquema lo maneja Flyway), Spring Security con JWT, Spring Mail.
   Ruta: `c:\Users\Pablo\Desktop\Desarrollo\MDZMuebles\BackEnd\MDZBackEnd`
 - **Frontend**: React + TypeScript + Vite, React Router, React Bootstrap, Formik + Yup, react-toastify.
   Ruta: `c:\Users\Pablo\Desktop\Desarrollo\MDZMuebles\FrontEnd\MDZFrontEnd`
-- **Base de datos**: MySQL 8.0 (Docker, `compose.dev.yaml`), migraciones manuales en `src/main/resources/db/migration/`.
+- **Base de datos**: PostgreSQL 16 (Docker, `compose.dev.yaml`, `localhost:5436`, base/usuario/clave `mdzmueblesbd`/`mdz`/`mdz`). Migraciones con Flyway en `src/main/resources/db/migration/`.
 - **Mail de desarrollo**: Mailpit (SMTP fake) vía Docker. UI web: `http://localhost:8125`. SMTP en puerto `1125` (remapeado por conflicto con otro proyecto en la misma máquina).
-- **Orquestación local**: `npm run dev` (script `scripts/dev.js`) levanta Docker (MySQL + Mailpit) y después `mvnw spring-boot:run -Dspring-boot.run.profiles=local`.
+- **Orquestación local**: `npm run dev` (script `scripts/dev.js`) levanta Docker (PostgreSQL + Mailpit) y después `mvnw spring-boot:run -Dspring-boot.run.profiles=local`.
 - **Rama de trabajo activa**: `deploy`.
 
 ---
@@ -201,7 +201,7 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - `application.properties` y `docker-compose.yml` toman el SMTP de `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM` y `MAIL_ADMIN`. En local sigue yendo a Mailpit (http://localhost:8125).
 - Verificado con Mailpit para ambos tipos de consulta. Falta configurar un SMTP real.
 
-**Teléfono como texto (2026-11-01)**: `Cliente.telefonoCliente` pasó a `String` (columna `VARCHAR(30)`), porque 10 dígitos no entraban en `int` y fallaba la consulta. En producción hay que correr a mano `db/migration/V4__telefono_cliente_texto.sql` antes de desplegar, porque Hibernate no modifica columnas existentes.
+**Teléfono como texto (2026-11-01)**: `Cliente.telefonoCliente` pasó a `String` (columna `VARCHAR(30)`), porque 10 dígitos no entraban en `int` y fallaba la consulta. (Ese script manual V4 se eliminó al pasar a PostgreSQL + Flyway, ver abajo.)
 
 **Optimización previa a producción (2026-11-01)**:
 - Frontend: imágenes en WebP, rutas con carga diferida, `/perfil` y pantallas admin detrás de `PrivateRoute`, gzip y caché en nginx, sin archivos ni dependencias sin uso.
@@ -211,3 +211,12 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 **Mobile (2026-11-01)**: auditoría de todas las pantallas en 360 y 390px. Hasta 640px `.mdz-filters` queda oculto salvo con `.mdz-filters-scroll` (admin). Hasta 760px las tablas se muestran como tarjetas (`mdz-cards-categoria`, `mdz-cards-mueble`, `mdz-cards-consulta`, con etiquetas por posición de columna en CSS: si cambian las columnas hay que actualizarlas) y los campos usan 16px para evitar el zoom de iOS.
 
 **Fotos (2026-11-01)**: `src/utils/comprimirImagen.ts` comprime en el navegador las fotos de más de 1 MB (lado mayor hasta 2000 px, JPEG 85%; PNG sigue en PNG). Mantiene la proporción y, si no puede achicarla, sube la original. El límite por archivo es 10 MB, igual que el backend. La galería de la ficha usa `object-fit: contain` (no recorta); portadas, Novedades y miniaturas siguen con `cover`.
+
+**PostgreSQL + Flyway (2026-11-05)**: la base pasó de MySQL a PostgreSQL 16 y el esquema ahora lo maneja Flyway.
+- `pom.xml`: `org.postgresql:postgresql` en lugar de `mysql-connector-j`, y se agregó `flyway-core`. Spring Boot 3.2.3 usa Flyway 9.22.3, que trae el soporte de Postgres en el core; `flyway-database-postgresql` recién hace falta desde Flyway 10.
+- `ddl-auto=validate` en los dos perfiles: Hibernate ya no crea ni modifica tablas, solo verifica que coincidan con las entidades. **Cualquier cambio de entidad necesita una migración nueva** (`V2__....sql`); si falta, la app no arranca.
+- `db/migration/V1__esquema_inicial.sql`: las 6 tablas, armadas a partir del DDL que genera Hibernate para Postgres. Se borraron los scripts manuales V1–V4 de MySQL (siguen en el historial de git). No se migraron datos.
+- Puerto del host 5436, porque 5432 lo usa un Postgres nativo y 5434/5435 otros proyectos.
+- `MuebleImagenes.imagenes`: columna `bytea` sin `@Lob`. Con `@Lob`, Hibernate usa `oid` en Postgres y la consulta nativa del catálogo devolvería un número en vez de la imagen.
+- SQL nativo: el `LIKE` del buscador pasó a `ILIKE` (consulta nativa) y a `LOWER(...)` (JPQL), porque Postgres distingue mayúsculas y MySQL no. Además se corrigieron 3 consultas nativas que ya estaban rotas: `ClienteRepository.searchById` y `UsuarioRepository.findUserByUsername` (comparaban `= %:x%`) y `findClienteByUsername` (usaba la columna eliminada `estado_cliente`).
+- **Pendiente**: `docker-compose.yml` (stack completo containerizado) sigue con MySQL y no funciona con este backend hasta actualizarlo. `application.properties` ya apunta a Postgres por variables `DB_*`.

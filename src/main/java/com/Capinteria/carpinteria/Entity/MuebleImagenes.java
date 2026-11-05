@@ -2,7 +2,6 @@ package com.Capinteria.carpinteria.Entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,8 +19,8 @@ import lombok.NoArgsConstructor;
 public class MuebleImagenes extends BaseEntity {
 
     private boolean esPortada;
-    @Lob
-    @Column(name = "imagen_imagenes", columnDefinition = "LONGBLOB")
+    // bytea en PostgreSQL. Sin @Lob: con Postgres, Hibernate mapearia @Lob byte[] a "oid".
+    @Column(name = "imagen_imagenes", columnDefinition = "bytea")
     private byte[] imagenes;
 
 

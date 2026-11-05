@@ -2,7 +2,7 @@
 /**
  * Orquesta el entorno de desarrollo:
  * 1. Verifica que Docker esté corriendo (lo intenta iniciar si no).
- * 2. Levanta el contenedor de MySQL definido en compose.dev.yaml.
+ * 2. Levanta el contenedor de PostgreSQL definido en compose.dev.yaml.
  * 3. Inicia el backend Spring Boot con el perfil 'local' (application-local.properties),
  *    para no depender de las variables DB_HOST/DB_PORT/etc. que usa Docker/producción.
  */
@@ -126,7 +126,7 @@ async function main() {
 
   await ensureDockerRunning();
 
-  console.log("\nLevantando MySQL (Docker: compose.dev.yaml)...");
+  console.log("\nLevantando PostgreSQL (Docker: compose.dev.yaml)...");
   const composeStatus = run("docker", [
     "compose",
     "-f",
@@ -136,14 +136,14 @@ async function main() {
     "--wait",
   ]);
   if (composeStatus !== 0) {
-    console.error("No se pudo levantar el contenedor de MySQL. Revisá los logs con: npm run db:logs");
+    console.error("No se pudo levantar el contenedor de PostgreSQL. Revisá los logs con: npm run db:logs");
     process.exit(composeStatus ?? 1);
   }
-  console.log("MySQL listo en localhost:3306 (base de datos: mdzmueblesbd).");
+  console.log("PostgreSQL listo en localhost:5436 (base de datos: mdzmueblesbd).");
 
   console.log(
-    "\nIniciando el backend (Spring Boot, perfil 'local'). El esquema de la base de " +
-    "datos se actualiza automáticamente al arrancar (ddl-auto=update)...\n"
+    "\nIniciando el backend (Spring Boot, perfil 'local'). Flyway aplica las " +
+    "migraciones de db/migration y Hibernate valida el esquema (ddl-auto=validate)...\n"
   );
   const mvnwPath = path.join(root, isWindows ? "mvnw.cmd" : "mvnw");
   const springArgs = "-Dspring-boot.run.profiles=local";

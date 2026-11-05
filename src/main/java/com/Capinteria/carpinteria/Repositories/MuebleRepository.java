@@ -22,7 +22,7 @@ public interface MuebleRepository extends BaseRepository<Mueble, Long> {
     Mueble findByIdAndNotDeleted(@Param("id") Long id);
 
     // Consulta para filtrar muebles por nombre O color (activos solamente) - CON PAGINACIÓN
-    @Query("SELECT m FROM Mueble m WHERE (m.nombreMueble LIKE %:filtro% OR m.colorMueble LIKE %:filtro%) AND m.fechaBajaMueble IS NULL ORDER BY m.nombreMueble ASC")
+    @Query("SELECT m FROM Mueble m WHERE (LOWER(m.nombreMueble) LIKE LOWER(CONCAT('%', :filtro, '%')) OR LOWER(m.colorMueble) LIKE LOWER(CONCAT('%', :filtro, '%'))) AND m.fechaBajaMueble IS NULL ORDER BY m.nombreMueble ASC")
     Page<Mueble> findByNombreOrColorContainingAndNotDeleted(@Param("filtro") String filtro, Pageable pageable);
 
     // Consulta nativa optimizada para filtrar muebles por nombre O color con solo imagen de portada
@@ -33,7 +33,7 @@ public interface MuebleRepository extends BaseRepository<Mueble, Long> {
                    "LEFT JOIN categoria c ON m.categoria_id = c.id " +
                    "LEFT JOIN mueble_imagenes i ON m.id = i.mueble_id AND i.es_portada = true " +
                    "WHERE m.fecha_baja IS NULL " +
-                   "AND (m.nombre_mueble LIKE %:filtro% OR m.color_mueble LIKE %:filtro%) " +
+                   "AND (m.nombre_mueble ILIKE %:filtro% OR m.color_mueble ILIKE %:filtro%) " +
                    "ORDER BY m.nombre_mueble ASC",
            nativeQuery = true)
     Page<Object[]> findCatalogoMueblesByFiltroOptimized(@Param("filtro") String filtro, Pageable pageable);
