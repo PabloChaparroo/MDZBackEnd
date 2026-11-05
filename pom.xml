@@ -15,6 +15,8 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>17</java.version>
+		<!-- Spring Boot 3.2.3 trae Flyway 9.22.3 (soporta hasta PostgreSQL 15); se sube a 10.x para PostgreSQL 16 -->
+		<flyway.version>10.22.0</flyway.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -94,10 +96,15 @@
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		<!-- Flyway 9.x (gestionado por Spring Boot 3.2): el soporte de PostgreSQL viene en flyway-core -->
+		<!-- Desde Flyway 10 el soporte de cada base va en un modulo aparte -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+			<version>${flyway.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>

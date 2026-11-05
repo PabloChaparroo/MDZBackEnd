@@ -213,7 +213,7 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 **Fotos (2026-11-01)**: `src/utils/comprimirImagen.ts` comprime en el navegador las fotos de más de 1 MB (lado mayor hasta 2000 px, JPEG 85%; PNG sigue en PNG). Mantiene la proporción y, si no puede achicarla, sube la original. El límite por archivo es 10 MB, igual que el backend. La galería de la ficha usa `object-fit: contain` (no recorta); portadas, Novedades y miniaturas siguen con `cover`.
 
 **PostgreSQL + Flyway (2026-11-05)**: la base pasó de MySQL a PostgreSQL 16 y el esquema ahora lo maneja Flyway.
-- `pom.xml`: `org.postgresql:postgresql` en lugar de `mysql-connector-j`, y se agregó `flyway-core`. Spring Boot 3.2.3 usa Flyway 9.22.3, que trae el soporte de Postgres en el core; `flyway-database-postgresql` recién hace falta desde Flyway 10.
+- `pom.xml`: `org.postgresql:postgresql` en lugar de `mysql-connector-j`, más `flyway-core` y `flyway-database-postgresql`. Flyway fijado en **10.22.0** (propiedad `flyway.version`; ver abajo).
 - `ddl-auto=validate` en los dos perfiles: Hibernate ya no crea ni modifica tablas, solo verifica que coincidan con las entidades. **Cualquier cambio de entidad necesita una migración nueva** (`V2__....sql`); si falta, la app no arranca.
 - `db/migration/V1__esquema_inicial.sql`: las 6 tablas, armadas a partir del DDL que genera Hibernate para Postgres. Se borraron los scripts manuales V1–V4 de MySQL (siguen en el historial de git). No se migraron datos.
 - Puerto del host 5436, porque 5432 lo usa un Postgres nativo y 5434/5435 otros proyectos.
@@ -224,5 +224,10 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
   - Modificar categoría y mueble, agregar imagen, cambiar portada, borrar imagen, responder consulta (guarda la respuesta y el mail llega a Mailpit) y dar de baja un mueble (sale del catálogo y aparece en dados de baja): todo OK.
   - Baja de categoría: OK sobre una categoría vacía. Una categoría cuyos muebles ya están todos dados de baja **no se puede dar de baja**, porque `CategoriaRepository.countMuebles...` cuenta también los muebles dados de baja. Viene de antes, no lo causó Postgres. Pendiente decidir si se corrige.
   - Perfil por defecto (`application.properties` con `DB_HOST=localhost DB_PORT=5436 DB_NAME/DB_USER/DB_PASSWORD`): arranca y conecta. Flyway valida V1 y no aplica nada nuevo, y Hibernate valida el esquema.
-  - Aviso de Flyway: 9.22.3 soporta oficialmente hasta PostgreSQL 15 y el contenedor usa 16 (funciona, pero no está certificado). Opciones: imagen `postgres:15` o subir Flyway a 10 (en ese caso hay que agregar `flyway-database-postgresql`). Pendiente de decisión.
+  - Aviso de Flyway: 9.22.3 soporta oficialmente hasta PostgreSQL 15 y el contenedor usa 16. **Resuelto** con la subida a Flyway 10 (ver abajo).
   - Detalle aparte: `GET /api/v1/categoria/dadas-de-baja` devuelve el `ResponseEntity` serializado dentro del cuerpo (`{"headers":..,"body":[..]}`). Viene de antes.
+
+**Flyway 10 (2026-11-05)**: se pasó de 9.22.3 (la que trae Spring Boot 3.2.3) a **10.22.0**, la última 10.x, porque 9.x no soporta PostgreSQL 16.
+- `pom.xml`: propiedad `<flyway.version>10.22.0</flyway.version>`, que pisa la versión que gestiona Spring Boot, y la dependencia `flyway-database-postgresql` con `<version>${flyway.version}</version>`. Spring Boot 3.2 no gestiona ese módulo, así que la versión tiene que ir explícita.
+- Verificado con `npm run dev` sobre la base con V1 ya aplicada: "Successfully validated 1 migration", "Schema public is up to date", Hibernate valida y la app arranca. Ya no aparece el warning "Flyway upgrade recommended". Ojo: en el perfil `local` el log de Flyway está en ERROR, así que para ver sus mensajes hay que correr con `LOGGING_LEVEL_ORG_FLYWAYDB=INFO`.
+- Cuando se actualice Spring Boot a 3.3 o más (que ya trae Flyway 10), se pueden sacar la propiedad y la versión explícita.
