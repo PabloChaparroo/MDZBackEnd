@@ -219,7 +219,7 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - Puerto del host 5436, porque 5432 lo usa un Postgres nativo y 5434/5435 otros proyectos.
 - `MuebleImagenes.imagenes`: columna `bytea` sin `@Lob`. Con `@Lob`, Hibernate usa `oid` en Postgres y la consulta nativa del catálogo devolvería un número en vez de la imagen.
 - SQL nativo: el `LIKE` del buscador pasó a `ILIKE` (consulta nativa) y a `LOWER(...)` (JPQL), porque Postgres distingue mayúsculas y MySQL no. Además se corrigieron 3 consultas nativas que ya estaban rotas: `ClienteRepository.searchById` y `UsuarioRepository.findUserByUsername` (comparaban `= %:x%`) y `findClienteByUsername` (usaba la columna eliminada `estado_cliente`).
-- **Pendiente**: `docker-compose.yml` (stack completo containerizado) sigue con MySQL y no funciona con este backend hasta actualizarlo. `application.properties` ya apunta a Postgres por variables `DB_*`.
+- ~~`docker-compose.yml` sigue con MySQL~~ → **resuelto** (ver sección 14).
 - **Verificación completa (2026-11-05)**, contra Postgres y revisando la base después de cada operación:
   - Modificar categoría y mueble, agregar imagen, cambiar portada, borrar imagen, responder consulta (guarda la respuesta y el mail llega a Mailpit) y dar de baja un mueble (sale del catálogo y aparece en dados de baja): todo OK.
   - Baja de categoría: OK sobre una categoría vacía. Una categoría cuyos muebles ya están todos dados de baja **no se puede dar de baja**, porque `CategoriaRepository.countMuebles...` cuenta también los muebles dados de baja. Viene de antes, no lo causó Postgres. Pendiente decidir si se corrige.
@@ -326,3 +326,17 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
   - Con todo: arranca en ~7 s, Flyway aplicó V1 desde cero, `/ping` 200, login del admin y perfil 200, CORS 200 para el origen configurado y 403 para otro, proceso corriendo como `mdz`.
   - Carga: 12 altas de muebles con 2 fotos cada una + 60 lecturas de catálogo e imágenes: **~231 MB de 512**, sin OutOfMemory.
   - Imagen: 527 MB en disco. Suite de tests: 328 en verde.
+
+---
+
+## 14. docker-compose.yml: stack completo como en producción (2026-11-06)
+
+- `docker compose up --build` levanta la **imagen del Dockerfile** con el **perfil por defecto** (variables de entorno, como Render) + `postgres:16-alpine` + Mailpit. API en `http://localhost:9091`, mails en `http://localhost:8126`. `docker compose down -v` borra todo, base incluida.
+- Proyecto `mdz-stack`, contenedores y volumen propios: no choca con `compose.dev.yaml` (Postgres sin puerto publicado, Mailpit UI en 8126). El desarrollo diario sigue con `compose.dev.yaml` + `npm run dev`.
+- **Ningún valor sale de `${...}`**: docker compose lee solo el `.env` de la carpeta, que tiene el SMTP real. Así el stack nunca manda mails de verdad. La `JWT_SECRET` y la clave del admin (`admin-stack`) son solo de este stack.
+- `mem_limit: 512m`, igual que Render.
+- Verificado desde cero: API lista en ~7 s, Flyway V1 aplicada, login del admin, alta de categoría y mueble con foto, catálogo, consulta pública, respuesta del admin con mail recibido en Mailpit. Memoria de la app: ~267 MB de 512.
+
+### Bug encontrado (solo en la imagen/jar, no en `npm run dev`)
+- **El aviso al admin de "consulta nueva" no se envía**: log `Error al avisar la nueva consulta: Not provider of jakarta.mail.util.StreamProvider was found`. `EmailServiceImpl.notificarNuevaConsulta` manda el mail en `CompletableFuture.runAsync` (ForkJoinPool común), cuyo hilo no tiene el classloader de Spring Boot cuando la app corre como jar, y Jakarta Mail no encuentra su proveedor. El error queda en un `catch` que solo loguea: en producción el admin no recibiría ningún aviso. La respuesta a la consulta (síncrona) sí funciona.
+- Arreglo propuesto: mandar el aviso con `@Async` de Spring (`@EnableAsync` + executor propio) en lugar de `CompletableFuture.runAsync`, y verificarlo con el stack de este compose (el error no se reproduce fuera del jar).
