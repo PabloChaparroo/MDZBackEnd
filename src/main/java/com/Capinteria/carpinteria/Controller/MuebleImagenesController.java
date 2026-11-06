@@ -10,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping(path = "api/v1/muebleImagenes")
 public class MuebleImagenesController extends BaseControllerImpl<MuebleImagenes, MuebleImagenesServiceImpl>{
 

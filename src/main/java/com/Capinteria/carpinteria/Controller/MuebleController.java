@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping(path = "api/v1/mueble")
 public class MuebleController extends BaseControllerImpl<Mueble, MuebleServiceImpl> {
 

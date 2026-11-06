@@ -296,3 +296,17 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - **Para producción**: generar una clave con `openssl rand -base64 32` y cargarla como `JWT_SECRET` en Render. No commitearla nunca. Al cambiarla, todos los tokens anteriores dejan de valer (hay que volver a loguearse).
 - La clave vieja sigue en el historial de git, pero ya no sirve: ningún entorno la usa.
 - Verificado: sin `JWT_SECRET` la app no arranca ("Falta la clave de firma de JWT..."), con una clave de 8 bytes tampoco, con el perfil local el login funciona y el perfil responde 200, y un token forjado con la clave vieja recibe 403 ("JWT signature does not match"). Tests: `JwtServiceTest` (6), suite completa 321 en verde.
+
+---
+
+## 12. CORS unificado y por variable de entorno (2026-11-06)
+
+- **Antes** había 4 capas que se pisaban: la lista fija de `SecurityConfig` (la única que se aplicaba, con `localhost` y un dominio viejo de Railway y credenciales activadas), un `WebMvcConfigurer` con `*`, `@CrossOrigin("*")` en los 7 controladores y un bean comentado en `ApplicationConfig`.
+- **Ahora** hay una sola definición, en `SecurityConfig.corsConfigurationSource`:
+  - Orígenes desde `cors.allowed-origins`: en producción la variable **`CORS_ALLOWED_ORIGINS`** (separada por comas, sin barra final). **Vacía = ningún origen permitido.**
+  - Perfil `local`: `http://localhost:5173` (Vite). Tests: `https://front.mdz.test`.
+  - Métodos GET, POST, PUT, DELETE, OPTIONS; headers `Authorization` y `Content-Type` (los únicos que usa el front); **sin credenciales** (el JWT va en el header, no en cookies).
+- Se borraron los `@CrossOrigin`, el bean comentado y el `addCorsMappings`; `CorsConfig` pasó a llamarse `MultipartConfig` (solo tiene el `multipartResolver`).
+- Tests: `security/CorsTest` (7): preflight permitido y rechazado, GET real con y sin header, método no permitido, lista vacía cierra todo, varios orígenes con espacios. Suite completa: 328 en verde.
+- Verificado en real: back con perfil local + front con Vite en `localhost:5173` + Chromium headless: login y perfil desde el origen del front responden 200, todas las llamadas a la API 2xx, ningún error de CORS en consola. (La base local de desarrollo está vacía desde la verificación de Flyway del 2026-11-05: el catálogo no muestra muebles porque no hay datos, no por CORS.)
+- **Pendiente**: cuando exista el dominio del front en producción, cargar `CORS_ALLOWED_ORIGINS` en Render y cambiar `VITE_BACKEND_URL` en `.env.production` del front (hoy apunta a un Railway viejo).
