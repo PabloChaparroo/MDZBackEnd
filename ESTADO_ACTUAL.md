@@ -257,3 +257,29 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - No toca la base a propósito: lo van a usar el health check de Render y el keep-alive externo (cron-job.org), y así Neon puede suspenderse sin gastar horas de cómputo. Por eso no se usa el health de Actuator, que por defecto consulta la base.
 - Test: `PingControllerTest` (`@SpringBootTest` + MockMvc, pasa por la cadena de seguridad real).
 - Verificado: con la app levantada y el log de SQL activo, `curl /ping` devolvió `pong 200` sin generar ninguna consulta.
+
+---
+
+## 10. Tests del backend (2026-11-06)
+
+`./mvnw -B test` corre **315 tests** (4 deshabilitados por bugs confirmados) en ~1 minuto. Son de integración: `@SpringBootTest` + MockMvc contra el Postgres real (el mismo del CI), con Flyway, seguridad, servicios y JPA de verdad. No se usa H2.
+
+- **Base común** `src/test/.../support/IntegrationTestBase.java`: vacía las tablas antes de cada test (`TRUNCATE ... RESTART IDENTITY`), crea admin/cliente y sus JWT, y reemplaza `EmailService` por un mock (ningún test manda mails). Todas las clases la extienden y comparten un solo contexto de Spring.
+- **Matriz de seguridad** `security/SecurityMatrixTest.java`: cada endpoint (80) sin token, con token de CLIENTE y con token de ADMIN. Si alguien abre o cierra una ruta sin querer en `SecurityConfig`, falla.
+- **Flujos** `flows/`: Auth (login, refresh, perfil, registro), Categoría (ABM y baja lógica), Mueble (alta con imágenes, catálogos, búsqueda, destacados, novedades, edición, baja), Imágenes (agregar, eliminar, portada única), Consulta (formularios públicos, panel, responder por mail y "si el mail falla no se guarda") y Cliente/Usuario.
+- Para correrlos en local hacen falta las variables `DB_*` apuntando a una base Postgres (por ejemplo una base vacía en el Postgres de `compose.dev.yaml`).
+- Política: un test que destapa un bug se marca `@Disabled("BUG: ...")` y no se toca `src/main` en la misma tarea. Para comprobar que siguen fallando: `./mvnw test -Dtest=... -Djunit.jupiter.conditions.deactivate=org.junit.*DisabledCondition`.
+
+### Bugs confirmados por los tests (deshabilitados, pendientes de arreglo)
+1. **Usuario dado de baja puede loguearse**: `Usuario.isEnabled()` siempre devuelve `true`. (`AuthFlowTest.usuarioDadoDeBajaNoPuedeLoguearse`)
+2. **Baja de categoría con muebles ya dados de baja falla** (deuda conocida): el conteo no ignora el soft delete. (`CategoriaFlowTest.sePuedeDarDeBajaUnaCategoriaSiSusMueblesYaEstanDeBaja`)
+3. **`GET /api/v1/categoria/dadas-de-baja` devuelve el ResponseEntity crudo** (deuda conocida). (`CategoriaFlowTest.listadoDeDadasDeBajaDevuelveUnaLista`)
+4. **Baja de un cliente sin usuario falla**: `deleteCliente` asume que todo cliente tiene `Usuario`; los clientes creados desde los formularios de consulta no lo tienen. (`ClienteUsuarioFlowTest.darDeBajaUnClienteSinUsuarioFunciona`)
+
+### Hallazgos de seguridad (no son tests rojos, revisar antes de producción)
+- **El secreto del JWT está hardcodeado** en `Jwt/JwtService.java` (`SECRET_KEY`). Está en el historial de git: hay que moverlo a una variable de entorno y generar uno nuevo para producción.
+- **Registro público**: `/auth/register` (rol CLIENTE) y `/auth/registerEmployee` (rol EMPLEADO) los puede usar cualquiera. No dan acceso al panel, pero permiten crear cuentas sin límite.
+- **Endpoints de diagnóstico públicos**: `/auth/test`, `/auth/test-post`, `/auth/login-test`. Candidatos a borrar.
+- **Listados que hoy son públicos** por la regla `GET /api/v1/mueble/**` y `GET /api/v1/muebleImagenes/**`: `mueble/dados-de-baja/{n}`, `mueble/page/{n}` (incluye dados de baja) y `muebleImagenes` (devuelve todas las fotos de la base en una sola respuesta, pesado).
+- **`PUT /api/v1/mueble/imagenes`** (solo admin) reemplaza las fotos de **todos** los muebles por las enviadas. Candidato a borrar.
+- Login con clave incorrecta responde 400 (no 401) y el body incluye el mensaje de la excepción.
