@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: mdzmueblesbd_test
+          POSTGRES_USER: mdz_ci
+          POSTGRES_PASSWORD: mdz_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U mdz_ci -d mdzmueblesbd_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    # Valores de prueba (no son secretos): el test @SpringBootTest levanta el
+    # contexto con el perfil por defecto y Flyway migra esta base vacía.
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_NAME: mdzmueblesbd_test
+      DB_USER: mdz_ci
+      DB_PASSWORD: mdz_ci
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Tests
+        run: ./mvnw -B test
+
+      - name: Package
+        run: ./mvnw -B -DskipTests package

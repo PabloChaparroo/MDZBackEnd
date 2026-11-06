@@ -235,3 +235,16 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
   - Perfil por defecto (`DB_HOST=localhost DB_PORT=5436` y demás `DB_*`): Hikari conecta, Flyway valida V1 ("Schema public is up to date") y la app arranca.
   - En ninguno de los dos arranques aparece el warning de versión no soportada.
 - Cuando se actualice Spring Boot a 3.3 o más (que ya trae Flyway 10), se pueden sacar la propiedad y la versión explícita.
+
+---
+
+## 8. CI (GitHub Actions, 2026-11-05)
+
+- Archivo: `.github/workflows/ci.yml`. Corre en `pull_request` hacia `master` y en `push` a `master`. La rama principal es `master` (no `main`).
+- Un solo job, `build` (es el nombre que se exige en la protección de la rama): `ubuntu-latest`, Temurin JDK 21 con caché de Maven, `./mvnw -B test` y después `./mvnw -B -DskipTests package`.
+- **Usa Postgres en CI**: el único test (`CarpinteriaApplicationTests.contextLoads`, `@SpringBootTest`) levanta el contexto completo con el perfil por defecto. Por eso el job tiene un service container `postgres:16` con healthcheck y las variables `DB_*` con valores de prueba (`mdzmueblesbd_test` / `mdz_ci` / `mdz_ci`). Flyway aplica V1 sobre esa base vacía en cada corrida.
+- `mvnw` pasó a modo `100755` en git (`git update-index --chmod=+x`). El workflow no hace chmod.
+- `target/` no está trackeado en `deploy` (está en `.gitignore`).
+- Verificado en local contra una base vacía (`mdz_ci_test` en el Postgres de `compose.dev.yaml`): el test pasa, el package arma el jar y Flyway dejó V1 aplicada.
+- `master` y `develop` se igualaron a `deploy` con un force-push. Antes se dejaron los tags de respaldo `backup/master-efcc740` y `backup/develop-bdedd10`.
+- **Pendiente**: proteger `master` en GitHub (exigir PR y el check `build`).
