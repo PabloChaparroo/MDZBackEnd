@@ -1,28 +1,30 @@
-# Usar JDK 21 como imagen base
-FROM mcr.microsoft.com/openjdk/jdk:21-ubuntu
+# ---------- Etapa 1: compilar ----------
+FROM eclipse-temurin:21-jdk-jammy AS build
+WORKDIR /build
 
-# Establecer el directorio de trabajo en el contenedor
+# Dependencias primero (capa cacheable mientras no cambie el pom)
+COPY mvnw pom.xml ./
+COPY .mvn .mvn
+RUN chmod +x mvnw && ./mvnw -B -q dependency:go-offline
+
+COPY src src
+RUN ./mvnw -B -q -DskipTests package && cp target/carpinteria-*.jar app.jar
+
+# ---------- Etapa 2: ejecutar (solo JRE) ----------
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
-# Copiar el archivo pom.xml y descargar dependencias (para aprovechar cache de Docker)
-COPY pom.xml .
-COPY mvnw .
-COPY .mvn .mvn
+# Usuario sin privilegios
+RUN useradd --system --uid 10001 mdz
+USER mdz
 
-# Dar permisos de ejecución al wrapper de Maven
-RUN chmod +x ./mvnw
+COPY --from=build /build/app.jar app.jar
 
-# Descargar dependencias
-RUN ./mvnw dependency:go-offline -B
+# Pensado para 512 MB (plan gratis de Render): heap acotado y GC simple.
+# Se puede pisar con la variable JAVA_OPTS sin rebuild.
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=70 -XX:+UseSerialGC -Xss512k -XX:TieredStopAtLevel=1"
 
-# Copiar el código fuente
-COPY src ./src
-
-# Construir la aplicación
-RUN ./mvnw clean package -DskipTests
-
-# Exponer el puerto de la app (coincide con server.port en application.properties)
+# Render inyecta PORT; en local la app usa 9091 (server.port=${PORT:9091})
 EXPOSE 9091
 
-# Comando para ejecutar la aplicación
-CMD ["java", "-jar", "target/carpinteria-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.jar"]

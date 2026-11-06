@@ -310,3 +310,19 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - Tests: `security/CorsTest` (7): preflight permitido y rechazado, GET real con y sin header, método no permitido, lista vacía cierra todo, varios orígenes con espacios. Suite completa: 328 en verde.
 - Verificado en real: back con perfil local + front con Vite en `localhost:5173` + Chromium headless: login y perfil desde el origen del front responden 200, todas las llamadas a la API 2xx, ningún error de CORS en consola. (La base local de desarrollo está vacía desde la verificación de Flyway del 2026-11-05: el catálogo no muestra muebles porque no hay datos, no por CORS.)
 - **Pendiente**: cuando exista el dominio del front en producción, cargar `CORS_ALLOWED_ORIGINS` en Render y cambiar `VITE_BACKEND_URL` en `.env.production` del front (hoy apunta a un Railway viejo).
+
+---
+
+## 13. Variables de entorno y Dockerfile para producción (2026-11-06)
+
+- **Puerto**: `server.port=${PORT:9091}` (Render inyecta `PORT`).
+- **Base**: `jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}?sslmode=${DB_SSLMODE:prefer}`. En Neon: `DB_SSLMODE=require`. Pool Hikari en `${DB_POOL_SIZE:5}` (uso bajo, Neon gratis limita conexiones).
+- **`.env.example`**: lista todas las variables de producción sin valores (DB_*, JWT_SECRET, CORS_ALLOWED_ORIGINS, ADMIN_PASSWORD, MAIL_*). Es la referencia para cargar Render.
+- **Dockerfile en dos etapas**: compila con `eclipse-temurin:21-jdk-jammy` y corre con `eclipse-temurin:21-jre-jammy`, usuario sin privilegios (`mdz`), `JAVA_OPTS` por defecto pensados para 512 MB (`MaxRAMPercentage=70`, SerialGC, `TieredStopAtLevel=1`), pisables por variable.
+- **`.gitattributes`**: `mvnw` siempre en LF (con `core.autocrlf=true` un clon en Windows lo dejaba en CRLF y `./mvnw` fallaba dentro de Docker).
+- **Admin inicial**: se crea al arrancar (`esteban@gmail.com`) solo si `ADMIN_PASSWORD` está definida y el admin no existe todavía.
+- Verificado con la imagen real, `-m 512m`, `PORT=8080`, contra una base Postgres nueva y vacía:
+  - Sin `JWT_SECRET` no arranca (mensaje claro).
+  - Con todo: arranca en ~7 s, Flyway aplicó V1 desde cero, `/ping` 200, login del admin y perfil 200, CORS 200 para el origen configurado y 403 para otro, proceso corriendo como `mdz`.
+  - Carga: 12 altas de muebles con 2 fotos cada una + 60 lecturas de catálogo e imágenes: **~231 MB de 512**, sin OutOfMemory.
+  - Imagen: 527 MB en disco. Suite de tests: 328 en verde.
