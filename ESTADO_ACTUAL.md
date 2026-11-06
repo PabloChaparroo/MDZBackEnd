@@ -337,6 +337,14 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - `mem_limit: 512m`, igual que Render.
 - Verificado desde cero: API lista en ~7 s, Flyway V1 aplicada, login del admin, alta de categoría y mueble con foto, catálogo, consulta pública, respuesta del admin con mail recibido en Mailpit. Memoria de la app: ~267 MB de 512.
 
-### Bug encontrado (solo en la imagen/jar, no en `npm run dev`)
+### Bug encontrado (solo en la imagen/jar, no en `npm run dev`) → **resuelto** (ver sección 15)
 - **El aviso al admin de "consulta nueva" no se envía**: log `Error al avisar la nueva consulta: Not provider of jakarta.mail.util.StreamProvider was found`. `EmailServiceImpl.notificarNuevaConsulta` manda el mail en `CompletableFuture.runAsync` (ForkJoinPool común), cuyo hilo no tiene el classloader de Spring Boot cuando la app corre como jar, y Jakarta Mail no encuentra su proveedor. El error queda en un `catch` que solo loguea: en producción el admin no recibiría ningún aviso. La respuesta a la consulta (síncrona) sí funciona.
 - Arreglo propuesto: mandar el aviso con `@Async` de Spring (`@EnableAsync` + executor propio) en lugar de `CompletableFuture.runAsync`, y verificarlo con el stack de este compose (el error no se reproduce fuera del jar).
+
+---
+
+## 15. Aviso de consulta nueva con @Async (2026-11-06)
+
+- **Arreglo** del bug de la sección 14: `EmailServiceImpl.notificarNuevaConsulta` ya no usa `CompletableFuture.runAsync` (ForkJoinPool común, sin el classloader de la app dentro del jar). Ahora es `@Async` con el executor de Spring Boot; `@EnableAsync` está en `Config/AsyncConfig.java`. Sigue sin demorar la respuesta del formulario y, si el SMTP falla, solo se loguea.
+- Test: `Service/EmailServiceAsyncTest` (el aviso se manda, en otro hilo que no es del ForkJoinPool y con el classloader de la app; un SMTP caído no propaga el error). Suite: 330 en verde.
+- Verificado en el jar real con `docker compose up --build`: dos consultas (una por mueble y una general) generaron los dos avisos en Mailpit y el log dice "Aviso de nueva consulta enviado".
