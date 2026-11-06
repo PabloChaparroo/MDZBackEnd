@@ -348,3 +348,29 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - **Arreglo** del bug de la sección 14: `EmailServiceImpl.notificarNuevaConsulta` ya no usa `CompletableFuture.runAsync` (ForkJoinPool común, sin el classloader de la app dentro del jar). Ahora es `@Async` con el executor de Spring Boot; `@EnableAsync` está en `Config/AsyncConfig.java`. Sigue sin demorar la respuesta del formulario y, si el SMTP falla, solo se loguea.
 - Test: `Service/EmailServiceAsyncTest` (el aviso se manda, en otro hilo que no es del ForkJoinPool y con el classloader de la app; un SMTP caído no propaga el error). Suite: 330 en verde.
 - Verificado en el jar real con `docker compose up --build`: dos consultas (una por mueble y una general) generaron los dos avisos en Mailpit y el log dice "Aviso de nueva consulta enviado".
+
+---
+
+## 16. Casillas de avisos administrables desde Mi Perfil (2026-11-06)
+
+**Para qué**: que el admin (el hermano) elija a qué mails llega el aviso de "consulta nueva", y los cambie solo, sin tocar Render.
+
+- **Cómo funciona el mail** (aclarado con el usuario): `MAIL_USERNAME`/`MAIL_PASSWORD` son la cuenta que **envía** (se configura una sola vez en Render). Las casillas que **reciben** son solo direcciones: no necesitan contraseña.
+- **Backend**:
+  - Tabla `destinatario_notificacion` (migración **V2**), mail único sin importar mayúsculas.
+  - `NotificacionService` + `NotificacionController` en `/api/v1/notificaciones` (solo ADMIN): `GET` (lista + `usaRespaldo`), `POST {mail}` (valida formato, guarda en minúsculas, 409 si ya está), `DELETE /{id}`, `POST /{id}/prueba` (manda un mail de prueba en el momento; 502 si el SMTP falla).
+  - El aviso de consulta nueva va a **todas** las casillas cargadas. Si no hay ninguna, va a `MAIL_ADMIN` (respaldo): nunca se queda sin destino.
+- **Frontend** (`MDZFrontEnd`): sección "Avisos de consultas nuevas" en Mi Perfil, **solo para ADMIN** (`NotificacionesPerfil.tsx`, `services/NotificacionService.ts`): lista, agregar, "Probar" y quitar con confirmación. Avisa cuando se está usando la casilla de respaldo.
+- **Entrega al hermano**: entra a Mi Perfil, agrega su mail, toca "Probar", y quita los mails de prueba. Conviene además poner su mail en `MAIL_ADMIN` en Render como respaldo.
+
+### Bug encontrado y arreglado: los errores llegaban como 403
+- En el servidor real, cuando un controller respondía con error vía excepción (409, 404, 400 por JSON mal formado...), Spring reenvía internamente a `/error`, que no era público: la seguridad lo bloqueaba y el cliente recibía **403**. MockMvc no hace ese reenvío, por eso los tests no lo veían.
+- Arreglo: `/error` público en `SecurityConfig` (no expone mensajes ni trazas). Test nuevo con servidor HTTP real: `security/ErroresServidorRealTest` (falla sin el arreglo, pasa con él).
+
+### Verificación
+- Suite: **360 tests** en verde (11 de flujo de notificaciones, 12 casos más en la matriz, 2 más del servicio de mail, 5 con servidor real).
+- Real, con back local + front Vite + Chromium headless: la sección aparece solo para el admin; agregar dos casillas, duplicado ("Ese mail ya está en la lista"), mail inválido bloqueado, "Probar" (llega a Mailpit), una consulta pública manda el aviso a las dos casillas, quitar con confirmación. En 375 px no hay scroll horizontal. Los datos de prueba se borraron de la base de desarrollo.
+
+### Encontrado de paso (preexistente, no se tocó)
+- `GET /api/v1/usuarios/showProfile` es solo ADMIN: un usuario con rol CLIENTE recibe 403 en Mi Perfil (la página igual muestra datos guardados en el navegador).
+- El sitio hoy no tiene modo claro activo en el código (la sección 7 lo menciona, pero no se encontró el toggle `mdz-theme`/`mdz-light`).

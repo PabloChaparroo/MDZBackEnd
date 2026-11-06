@@ -40,6 +40,12 @@ public class SecurityConfig {
                 
                 .requestMatchers(new AntPathRequestMatcher("/auth/**")).permitAll()
 
+                // === PÁGINA DE ERROR DE SPRING ===
+                // Cuando un controller responde con error (ResponseStatusException, JSON inválido, etc.)
+                // el servidor reenvía internamente a /error. Si /error no es público, la seguridad lo
+                // bloquea y el cliente recibe 403 en vez del 400/404/409 real. No expone mensajes ni trazas.
+                .requestMatchers(new AntPathRequestMatcher("/error")).permitAll()
+
                 // === PING (health check y keep-alive, no toca la base) ===
                 .requestMatchers(new AntPathRequestMatcher("/ping", "GET")).permitAll()
 
