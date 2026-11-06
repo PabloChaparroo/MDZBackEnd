@@ -277,9 +277,22 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 4. **Baja de un cliente sin usuario falla**: `deleteCliente` asume que todo cliente tiene `Usuario`; los clientes creados desde los formularios de consulta no lo tienen. (`ClienteUsuarioFlowTest.darDeBajaUnClienteSinUsuarioFunciona`)
 
 ### Hallazgos de seguridad (no son tests rojos, revisar antes de producción)
-- **El secreto del JWT está hardcodeado** en `Jwt/JwtService.java` (`SECRET_KEY`). Está en el historial de git: hay que moverlo a una variable de entorno y generar uno nuevo para producción.
+- ~~El secreto del JWT está hardcodeado~~ → **resuelto** (ver sección 11).
 - **Registro público**: `/auth/register` (rol CLIENTE) y `/auth/registerEmployee` (rol EMPLEADO) los puede usar cualquiera. No dan acceso al panel, pero permiten crear cuentas sin límite.
 - **Endpoints de diagnóstico públicos**: `/auth/test`, `/auth/test-post`, `/auth/login-test`. Candidatos a borrar.
 - **Listados que hoy son públicos** por la regla `GET /api/v1/mueble/**` y `GET /api/v1/muebleImagenes/**`: `mueble/dados-de-baja/{n}`, `mueble/page/{n}` (incluye dados de baja) y `muebleImagenes` (devuelve todas las fotos de la base en una sola respuesta, pesado).
 - **`PUT /api/v1/mueble/imagenes`** (solo admin) reemplaza las fotos de **todos** los muebles por las enviadas. Candidato a borrar.
 - Login con clave incorrecta responde 400 (no 401) y el body incluye el mensaje de la excepción.
+
+---
+
+## 11. Clave de firma de JWT por variable de entorno (2026-11-06)
+
+- **Problema**: la clave estaba fija en `JwtService` (y quedó en el historial de git). Con ella cualquiera podía fabricar un token "de admin" válido sin saber ninguna contraseña.
+- **Ahora**: `JwtService` recibe la clave por la propiedad `jwt.secret`:
+  - Perfil por defecto (producción): `jwt.secret=${JWT_SECRET:}`. **Si falta, no es Base64 o tiene menos de 32 bytes, la app no arranca** y lo dice en el log.
+  - Perfil `local`: una clave nueva solo de desarrollo en `application-local.properties`.
+  - Tests: clave de prueba en `src/test/resources/config/application.properties` (no hace falta tocar el CI).
+- **Para producción**: generar una clave con `openssl rand -base64 32` y cargarla como `JWT_SECRET` en Render. No commitearla nunca. Al cambiarla, todos los tokens anteriores dejan de valer (hay que volver a loguearse).
+- La clave vieja sigue en el historial de git, pero ya no sirve: ningún entorno la usa.
+- Verificado: sin `JWT_SECRET` la app no arranca ("Falta la clave de firma de JWT..."), con una clave de 8 bytes tampoco, con el perfil local el login funciona y el perfil responde 200, y un token forjado con la clave vieja recibe 403 ("JWT signature does not match"). Tests: `JwtServiceTest` (6), suite completa 321 en verde.
