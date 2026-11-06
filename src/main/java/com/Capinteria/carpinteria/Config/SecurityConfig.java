@@ -38,6 +38,9 @@ public class SecurityConfig {
                 
                 .requestMatchers(new AntPathRequestMatcher("/auth/**")).permitAll()
 
+                // === PING (health check y keep-alive, no toca la base) ===
+                .requestMatchers(new AntPathRequestMatcher("/ping", "GET")).permitAll()
+
                 // === ARCHIVOS ESTÁTICOS ===
                 .requestMatchers(new AntPathRequestMatcher("/static/**")).permitAll()
 

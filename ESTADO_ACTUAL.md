@@ -247,4 +247,13 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - `target/` no está trackeado en `deploy` (está en `.gitignore`).
 - Verificado en local contra una base vacía (`mdz_ci_test` en el Postgres de `compose.dev.yaml`): el test pasa, el package arma el jar y Flyway dejó V1 aplicada.
 - `master` y `develop` se igualaron a `deploy` con un force-push. Antes se dejaron los tags de respaldo `backup/master-efcc740` y `backup/develop-bdedd10`.
-- **Pendiente**: proteger `master` en GitHub (exigir PR y el check `build`).
+- `master` protegida (2026-11-05): exige PR (sin aprobaciones obligatorias, porque el autor no puede aprobar su propio PR) y el check `build` en verde con la rama al día. Ya no se puede hacer force-push a `master`.
+
+---
+
+## 9. Endpoint /ping (2026-11-05)
+
+- `GET /ping` devuelve `200` con el texto `pong`, es público y no requiere JWT (`permitAll` en `SecurityConfig`, solo para GET; un POST da 403). Está en `Controller/PingController.java`.
+- No toca la base a propósito: lo van a usar el health check de Render y el keep-alive externo (cron-job.org), y así Neon puede suspenderse sin gastar horas de cómputo. Por eso no se usa el health de Actuator, que por defecto consulta la base.
+- Test: `PingControllerTest` (`@SpringBootTest` + MockMvc, pasa por la cadena de seguridad real).
+- Verificado: con la app levantada y el log de SQL activo, `curl /ping` devolvió `pong 200` sin generar ninguna consulta.
