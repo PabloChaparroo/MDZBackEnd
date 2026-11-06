@@ -80,6 +80,9 @@ public class SecurityConfig {
                
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/usuarios/**")).hasAuthority("ADMIN")
 
+                // === NOTIFICACIONES (casillas que reciben el aviso de consulta nueva) ===
+                .requestMatchers(new AntPathRequestMatcher("/api/v1/notificaciones/**")).hasAuthority("ADMIN")
+
                 // === CUALQUIER OTRA RUTA - REQUIERE AUTENTICACIÓN ===
                 .anyRequest().authenticated()
             )

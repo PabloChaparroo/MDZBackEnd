@@ -14,4 +14,10 @@ public interface EmailService {
      */
     void notificarNuevaConsulta(String nombreCliente, String mailCliente, String telefonoCliente,
                                 String mensajeConsulta, String nombreMueble);
+
+    /**
+     * Manda un mail de prueba a una casilla de notificaciones. Es síncrono: si el envío
+     * falla, lanza la excepción para que el panel pueda avisarlo.
+     */
+    void enviarPruebaNotificacion(String mailDestino);
 }

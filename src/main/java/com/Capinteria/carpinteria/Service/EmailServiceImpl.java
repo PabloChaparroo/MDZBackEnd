@@ -19,11 +19,12 @@ public class EmailServiceImpl implements EmailService {
     @Value("${mdz.mail.from}")
     private String remitente;
 
-    @Value("${mdz.mail.admin}")
-    private String mailAdministrador;
+    /** Casillas que reciben el aviso de consulta nueva (las cargadas en Mi Perfil, o MAIL_ADMIN de respaldo). */
+    private final NotificacionService notificacionService;
 
-    public EmailServiceImpl(JavaMailSender mailSender) {
+    public EmailServiceImpl(JavaMailSender mailSender, NotificacionService notificacionService) {
         this.mailSender = mailSender;
+        this.notificacionService = notificacionService;
     }
 
     @Override
@@ -56,9 +57,14 @@ public class EmailServiceImpl implements EmailService {
     public void notificarNuevaConsulta(String nombreCliente, String mailCliente, String telefonoCliente,
                                        String mensajeConsulta, String nombreMueble) {
         try {
+            String[] destinatarios = notificacionService.destinatariosDelAviso();
+            if (destinatarios.length == 0) {
+                logger.warn("⚠️ [EMAIL] No hay casillas para avisar la consulta nueva (ni cargadas en Mi Perfil ni MAIL_ADMIN)");
+                return;
+            }
             SimpleMailMessage mensaje = new SimpleMailMessage();
             mensaje.setFrom(remitente);
-            mensaje.setTo(mailAdministrador);
+            mensaje.setTo(destinatarios);
             mensaje.setReplyTo(mailCliente);
             mensaje.setSubject(nombreMueble != null
                     ? "MDZ Muebles - Consulta por " + nombreMueble
@@ -76,5 +82,18 @@ public class EmailServiceImpl implements EmailService {
         } catch (Exception e) {
             logger.error("❌ [EMAIL] Error al avisar la nueva consulta: {}", e.getMessage());
         }
+    }
+
+    @Override
+    public void enviarPruebaNotificacion(String mailDestino) {
+        SimpleMailMessage mensaje = new SimpleMailMessage();
+        mensaje.setFrom(remitente);
+        mensaje.setTo(mailDestino);
+        mensaje.setSubject("MDZ Muebles - Mail de prueba");
+        mensaje.setText("Este es un mail de prueba.\n\n"
+                + "Si lo recibiste, esta casilla va a recibir el aviso de cada consulta nueva que llegue desde la web.\n\n"
+                + "Equipo de MDZ Muebles");
+        mailSender.send(mensaje);
+        logger.info("✅ [EMAIL] Mail de prueba enviado a: {}", mailDestino);
     }
 }

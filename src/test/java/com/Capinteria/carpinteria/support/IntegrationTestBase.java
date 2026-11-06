@@ -71,7 +71,7 @@ public abstract class IntegrationTestBase {
 
     @BeforeEach
     void limpiarBase() {
-        jdbc.execute("TRUNCATE TABLE consulta, mueble_imagenes, mueble, categoria, usuario, cliente RESTART IDENTITY CASCADE");
+        jdbc.execute("TRUNCATE TABLE consulta, mueble_imagenes, mueble, categoria, usuario, cliente, destinatario_notificacion RESTART IDENTITY CASCADE");
     }
 
     // ---------- Usuarios y tokens ----------

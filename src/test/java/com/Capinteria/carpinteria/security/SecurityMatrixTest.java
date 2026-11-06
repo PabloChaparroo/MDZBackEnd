@@ -134,7 +134,13 @@ class SecurityMatrixTest extends IntegrationTestBase {
                 ep(Acceso.ADMIN, "POST", "/api/v1/usuarios", "{}"),
                 ep(Acceso.ADMIN, "PUT", "/api/v1/usuarios", "[]"),
                 ep(Acceso.ADMIN, "PUT", "/api/v1/usuarios/" + ID, "{}"),
-                ep(Acceso.ADMIN, "DELETE", "/api/v1/usuarios/" + ID, null)
+                ep(Acceso.ADMIN, "DELETE", "/api/v1/usuarios/" + ID, null),
+
+                // ---------- Notificaciones: todo ADMIN ----------
+                ep(Acceso.ADMIN, "GET", "/api/v1/notificaciones", null),
+                ep(Acceso.ADMIN, "POST", "/api/v1/notificaciones", "{\"mail\":\"matriz@mdz.test\"}"),
+                ep(Acceso.ADMIN, "DELETE", "/api/v1/notificaciones/" + ID, null),
+                ep(Acceso.ADMIN, "POST", "/api/v1/notificaciones/" + ID + "/prueba", null)
         );
     }
 
