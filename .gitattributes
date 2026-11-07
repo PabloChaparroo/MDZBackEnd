@@ -1,0 +1,5 @@
+# Scripts que se ejecutan en Linux (Docker, CI, Render): siempre LF, aunque el clon sea en Windows
+mvnw text eol=lf
+*.sh text eol=lf
+# El wrapper de Windows queda en CRLF
+mvnw.cmd text eol=crlf

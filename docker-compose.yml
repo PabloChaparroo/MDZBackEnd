@@ -1,55 +1,77 @@
-version: '3.8'
+# Sistema completo en contenedores, igual que en producción:
+# la imagen del Dockerfile + PostgreSQL 16 (Flyway crea el esquema al arrancar)
+# + Mailpit como SMTP falso. Usa el perfil POR DEFECTO de Spring (variables de entorno),
+# no el perfil local.
+#
+#   docker compose up --build        -> API en http://localhost:9091 (GET /ping)
+#   Mails "enviados": http://localhost:8126
+#   docker compose down -v           -> borra también la base
+#
+# Para desarrollar día a día se sigue usando compose.dev.yaml + `npm run dev`.
+# Este archivo es para probar la imagen de producción de punta a punta.
+#
+# OJO: docker compose lee automáticamente el .env de esta carpeta, que tiene el SMTP real.
+# Por eso acá ningún valor sale de variables (${...}): todo está fijo y el mail va a Mailpit.
+# Las claves de este archivo son SOLO para este stack local; producción usa otras (ver .env.example).
+
+name: mdz-stack
 
 services:
-  # Base de datos MySQL
-  mysql-db:
-    image: mysql:8.0
-    container_name: mdzmueblesbd
+  db:
+    image: postgres:16-alpine
+    container_name: mdz-stack-db
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: mdzmueblesbd
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root
-    ports:
-      - "3306:3306"
+      POSTGRES_DB: mdzmuebles
+      POSTGRES_USER: mdz
+      POSTGRES_PASSWORD: mdz-stack
     volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - mdzmueblesnet
+      - mdz-stack-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
+      test: ["CMD-SHELL", "pg_isready -U mdz -d mdzmuebles"]
+      interval: 5s
+      timeout: 5s
       retries: 10
+    # Sin puertos publicados: solo la app accede (y no choca con el Postgres de desarrollo)
 
-  # Aplicación Spring Boot
-  mdzmueblesback:
+  mailpit:
+    image: axllent/mailpit
+    container_name: mdz-stack-mailpit
+    environment:
+      # La app usa smtp.auth=true (como con el SMTP real): Mailpit acepta cualquier usuario
+      MP_SMTP_AUTH_ACCEPT_ANY: "true"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "true"
+    ports:
+      - "8126:8025" # UI web (8125 la usa el Mailpit de desarrollo)
+
+  app:
     build: .
-    container_name: mdzmueblesback
+    container_name: mdz-stack-app
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
     ports:
       - "9091:9091"
-    depends_on:
-      mysql-db:
-        condition: service_healthy
     environment:
-      DB_HOST: mysql-db
-      DB_PORT: 3306
-      DB_NAME: mdzmueblesbd
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
-      MAIL_HOST: ${MAIL_HOST:-}
-      MAIL_PORT: ${MAIL_PORT:-587}
-      MAIL_USERNAME: ${MAIL_USERNAME:-}
-      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
-      MAIL_FROM: ${MAIL_FROM:-}
-      MAIL_ADMIN: ${MAIL_ADMIN:-}
-      DB_USER: root
-      DB_PASSWORD: root
-    networks:
-      - mdzmueblesnet
+      PORT: "9091"
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: mdzmuebles
+      DB_USER: mdz
+      DB_PASSWORD: mdz-stack
+      DB_SSLMODE: disable
+      JWT_SECRET: "c3RhY2stbG9jYWwtc29sby1wYXJhLWRvY2tlci1jb21wb3NlLTMyYnl0ZXM="
+      CORS_ALLOWED_ORIGINS: "http://localhost:5173"
+      ADMIN_PASSWORD: admin-stack
+      MAIL_HOST: mailpit
+      MAIL_PORT: "1025"
+      MAIL_USERNAME: mdz-stack
+      MAIL_PASSWORD: mdz-stack
+      MAIL_FROM: no-reply@mdzmuebles.local
+      MAIL_ADMIN: consultas@mdzmuebles.local
+    mem_limit: 512m # mismo límite que el plan gratis de Render
     restart: unless-stopped
 
 volumes:
-  mysql_data:
-
-networks:
-  mdzmueblesnet:
-    driver: bridge
+  mdz-stack-data:

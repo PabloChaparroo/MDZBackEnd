@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import java.text.SimpleDateFormat;
 
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping(path = "api/v1/categoria")
 public class CategoriaController extends BaseControllerImpl<Categoria, CategoriaServiceImpl> {
 

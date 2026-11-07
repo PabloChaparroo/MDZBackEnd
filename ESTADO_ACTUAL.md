@@ -219,7 +219,7 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - Puerto del host 5436, porque 5432 lo usa un Postgres nativo y 5434/5435 otros proyectos.
 - `MuebleImagenes.imagenes`: columna `bytea` sin `@Lob`. Con `@Lob`, Hibernate usa `oid` en Postgres y la consulta nativa del catálogo devolvería un número en vez de la imagen.
 - SQL nativo: el `LIKE` del buscador pasó a `ILIKE` (consulta nativa) y a `LOWER(...)` (JPQL), porque Postgres distingue mayúsculas y MySQL no. Además se corrigieron 3 consultas nativas que ya estaban rotas: `ClienteRepository.searchById` y `UsuarioRepository.findUserByUsername` (comparaban `= %:x%`) y `findClienteByUsername` (usaba la columna eliminada `estado_cliente`).
-- **Pendiente**: `docker-compose.yml` (stack completo containerizado) sigue con MySQL y no funciona con este backend hasta actualizarlo. `application.properties` ya apunta a Postgres por variables `DB_*`.
+- ~~`docker-compose.yml` sigue con MySQL~~ → **resuelto** (ver sección 14).
 - **Verificación completa (2026-11-05)**, contra Postgres y revisando la base después de cada operación:
   - Modificar categoría y mueble, agregar imagen, cambiar portada, borrar imagen, responder consulta (guarda la respuesta y el mail llega a Mailpit) y dar de baja un mueble (sale del catálogo y aparece en dados de baja): todo OK.
   - Baja de categoría: OK sobre una categoría vacía. Una categoría cuyos muebles ya están todos dados de baja **no se puede dar de baja**, porque `CategoriaRepository.countMuebles...` cuenta también los muebles dados de baja. Viene de antes, no lo causó Postgres. Pendiente decidir si se corrige.
@@ -247,4 +247,138 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - `target/` no está trackeado en `deploy` (está en `.gitignore`).
 - Verificado en local contra una base vacía (`mdz_ci_test` en el Postgres de `compose.dev.yaml`): el test pasa, el package arma el jar y Flyway dejó V1 aplicada.
 - `master` y `develop` se igualaron a `deploy` con un force-push. Antes se dejaron los tags de respaldo `backup/master-efcc740` y `backup/develop-bdedd10`.
-- **Pendiente**: proteger `master` en GitHub (exigir PR y el check `build`).
+- `master` protegida (2026-11-05): exige PR (sin aprobaciones obligatorias, porque el autor no puede aprobar su propio PR) y el check `build` en verde con la rama al día. Ya no se puede hacer force-push a `master`.
+
+---
+
+## 9. Endpoint /ping (2026-11-05)
+
+- `GET /ping` devuelve `200` con el texto `pong`, es público y no requiere JWT (`permitAll` en `SecurityConfig`, solo para GET; un POST da 403). Está en `Controller/PingController.java`.
+- No toca la base a propósito: lo van a usar el health check de Render y el keep-alive externo (cron-job.org), y así Neon puede suspenderse sin gastar horas de cómputo. Por eso no se usa el health de Actuator, que por defecto consulta la base.
+- Test: `PingControllerTest` (`@SpringBootTest` + MockMvc, pasa por la cadena de seguridad real).
+- Verificado: con la app levantada y el log de SQL activo, `curl /ping` devolvió `pong 200` sin generar ninguna consulta.
+
+---
+
+## 10. Tests del backend (2026-11-06)
+
+`./mvnw -B test` corre **315 tests** (4 deshabilitados por bugs confirmados) en ~1 minuto. Son de integración: `@SpringBootTest` + MockMvc contra el Postgres real (el mismo del CI), con Flyway, seguridad, servicios y JPA de verdad. No se usa H2.
+
+- **Base común** `src/test/.../support/IntegrationTestBase.java`: vacía las tablas antes de cada test (`TRUNCATE ... RESTART IDENTITY`), crea admin/cliente y sus JWT, y reemplaza `EmailService` por un mock (ningún test manda mails). Todas las clases la extienden y comparten un solo contexto de Spring.
+- **Matriz de seguridad** `security/SecurityMatrixTest.java`: cada endpoint (80) sin token, con token de CLIENTE y con token de ADMIN. Si alguien abre o cierra una ruta sin querer en `SecurityConfig`, falla.
+- **Flujos** `flows/`: Auth (login, refresh, perfil, registro), Categoría (ABM y baja lógica), Mueble (alta con imágenes, catálogos, búsqueda, destacados, novedades, edición, baja), Imágenes (agregar, eliminar, portada única), Consulta (formularios públicos, panel, responder por mail y "si el mail falla no se guarda") y Cliente/Usuario.
+- Para correrlos en local hacen falta las variables `DB_*` apuntando a una base Postgres (por ejemplo una base vacía en el Postgres de `compose.dev.yaml`).
+- Política: un test que destapa un bug se marca `@Disabled("BUG: ...")` y no se toca `src/main` en la misma tarea. Para comprobar que siguen fallando: `./mvnw test -Dtest=... -Djunit.jupiter.conditions.deactivate=org.junit.*DisabledCondition`.
+
+### Bugs confirmados por los tests (deshabilitados, pendientes de arreglo)
+1. **Usuario dado de baja puede loguearse**: `Usuario.isEnabled()` siempre devuelve `true`. (`AuthFlowTest.usuarioDadoDeBajaNoPuedeLoguearse`)
+2. **Baja de categoría con muebles ya dados de baja falla** (deuda conocida): el conteo no ignora el soft delete. (`CategoriaFlowTest.sePuedeDarDeBajaUnaCategoriaSiSusMueblesYaEstanDeBaja`)
+3. **`GET /api/v1/categoria/dadas-de-baja` devuelve el ResponseEntity crudo** (deuda conocida). (`CategoriaFlowTest.listadoDeDadasDeBajaDevuelveUnaLista`)
+4. **Baja de un cliente sin usuario falla**: `deleteCliente` asume que todo cliente tiene `Usuario`; los clientes creados desde los formularios de consulta no lo tienen. (`ClienteUsuarioFlowTest.darDeBajaUnClienteSinUsuarioFunciona`)
+
+### Hallazgos de seguridad (no son tests rojos, revisar antes de producción)
+- ~~El secreto del JWT está hardcodeado~~ → **resuelto** (ver sección 11).
+- **Registro público**: `/auth/register` (rol CLIENTE) y `/auth/registerEmployee` (rol EMPLEADO) los puede usar cualquiera. No dan acceso al panel, pero permiten crear cuentas sin límite.
+- **Endpoints de diagnóstico públicos**: `/auth/test`, `/auth/test-post`, `/auth/login-test`. Candidatos a borrar.
+- **Listados que hoy son públicos** por la regla `GET /api/v1/mueble/**` y `GET /api/v1/muebleImagenes/**`: `mueble/dados-de-baja/{n}`, `mueble/page/{n}` (incluye dados de baja) y `muebleImagenes` (devuelve todas las fotos de la base en una sola respuesta, pesado).
+- **`PUT /api/v1/mueble/imagenes`** (solo admin) reemplaza las fotos de **todos** los muebles por las enviadas. Candidato a borrar.
+- Login con clave incorrecta responde 400 (no 401) y el body incluye el mensaje de la excepción.
+
+---
+
+## 11. Clave de firma de JWT por variable de entorno (2026-11-06)
+
+- **Problema**: la clave estaba fija en `JwtService` (y quedó en el historial de git). Con ella cualquiera podía fabricar un token "de admin" válido sin saber ninguna contraseña.
+- **Ahora**: `JwtService` recibe la clave por la propiedad `jwt.secret`:
+  - Perfil por defecto (producción): `jwt.secret=${JWT_SECRET:}`. **Si falta, no es Base64 o tiene menos de 32 bytes, la app no arranca** y lo dice en el log.
+  - Perfil `local`: una clave nueva solo de desarrollo en `application-local.properties`.
+  - Tests: clave de prueba en `src/test/resources/config/application.properties` (no hace falta tocar el CI).
+- **Para producción**: generar una clave con `openssl rand -base64 32` y cargarla como `JWT_SECRET` en Render. No commitearla nunca. Al cambiarla, todos los tokens anteriores dejan de valer (hay que volver a loguearse).
+- La clave vieja sigue en el historial de git, pero ya no sirve: ningún entorno la usa.
+- Verificado: sin `JWT_SECRET` la app no arranca ("Falta la clave de firma de JWT..."), con una clave de 8 bytes tampoco, con el perfil local el login funciona y el perfil responde 200, y un token forjado con la clave vieja recibe 403 ("JWT signature does not match"). Tests: `JwtServiceTest` (6), suite completa 321 en verde.
+
+---
+
+## 12. CORS unificado y por variable de entorno (2026-11-06)
+
+- **Antes** había 4 capas que se pisaban: la lista fija de `SecurityConfig` (la única que se aplicaba, con `localhost` y un dominio viejo de Railway y credenciales activadas), un `WebMvcConfigurer` con `*`, `@CrossOrigin("*")` en los 7 controladores y un bean comentado en `ApplicationConfig`.
+- **Ahora** hay una sola definición, en `SecurityConfig.corsConfigurationSource`:
+  - Orígenes desde `cors.allowed-origins`: en producción la variable **`CORS_ALLOWED_ORIGINS`** (separada por comas, sin barra final). **Vacía = ningún origen permitido.**
+  - Perfil `local`: `http://localhost:5173` (Vite). Tests: `https://front.mdz.test`.
+  - Métodos GET, POST, PUT, DELETE, OPTIONS; headers `Authorization` y `Content-Type` (los únicos que usa el front); **sin credenciales** (el JWT va en el header, no en cookies).
+- Se borraron los `@CrossOrigin`, el bean comentado y el `addCorsMappings`; `CorsConfig` pasó a llamarse `MultipartConfig` (solo tiene el `multipartResolver`).
+- Tests: `security/CorsTest` (7): preflight permitido y rechazado, GET real con y sin header, método no permitido, lista vacía cierra todo, varios orígenes con espacios. Suite completa: 328 en verde.
+- Verificado en real: back con perfil local + front con Vite en `localhost:5173` + Chromium headless: login y perfil desde el origen del front responden 200, todas las llamadas a la API 2xx, ningún error de CORS en consola. (La base local de desarrollo está vacía desde la verificación de Flyway del 2026-11-05: el catálogo no muestra muebles porque no hay datos, no por CORS.)
+- **Pendiente**: cuando exista el dominio del front en producción, cargar `CORS_ALLOWED_ORIGINS` en Render y cambiar `VITE_BACKEND_URL` en `.env.production` del front (hoy apunta a un Railway viejo).
+
+---
+
+## 13. Variables de entorno y Dockerfile para producción (2026-11-06)
+
+- **Puerto**: `server.port=${PORT:9091}` (Render inyecta `PORT`).
+- **Base**: `jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}?sslmode=${DB_SSLMODE:prefer}`. En Neon: `DB_SSLMODE=require`. Pool Hikari en `${DB_POOL_SIZE:5}` (uso bajo, Neon gratis limita conexiones).
+- **`.env.example`**: lista todas las variables de producción sin valores (DB_*, JWT_SECRET, CORS_ALLOWED_ORIGINS, ADMIN_PASSWORD, MAIL_*). Es la referencia para cargar Render.
+- **Dockerfile en dos etapas**: compila con `eclipse-temurin:21-jdk-jammy` y corre con `eclipse-temurin:21-jre-jammy`, usuario sin privilegios (`mdz`), `JAVA_OPTS` por defecto pensados para 512 MB (`MaxRAMPercentage=70`, SerialGC, `TieredStopAtLevel=1`), pisables por variable.
+- **`.gitattributes`**: `mvnw` siempre en LF (con `core.autocrlf=true` un clon en Windows lo dejaba en CRLF y `./mvnw` fallaba dentro de Docker).
+- **Admin inicial**: se crea al arrancar (`esteban@gmail.com`) solo si `ADMIN_PASSWORD` está definida y el admin no existe todavía.
+- Verificado con la imagen real, `-m 512m`, `PORT=8080`, contra una base Postgres nueva y vacía:
+  - Sin `JWT_SECRET` no arranca (mensaje claro).
+  - Con todo: arranca en ~7 s, Flyway aplicó V1 desde cero, `/ping` 200, login del admin y perfil 200, CORS 200 para el origen configurado y 403 para otro, proceso corriendo como `mdz`.
+  - Carga: 12 altas de muebles con 2 fotos cada una + 60 lecturas de catálogo e imágenes: **~231 MB de 512**, sin OutOfMemory.
+  - Imagen: 527 MB en disco. Suite de tests: 328 en verde.
+
+---
+
+## 14. docker-compose.yml: stack completo como en producción (2026-11-06)
+
+- `docker compose up --build` levanta la **imagen del Dockerfile** con el **perfil por defecto** (variables de entorno, como Render) + `postgres:16-alpine` + Mailpit. API en `http://localhost:9091`, mails en `http://localhost:8126`. `docker compose down -v` borra todo, base incluida.
+- Proyecto `mdz-stack`, contenedores y volumen propios: no choca con `compose.dev.yaml` (Postgres sin puerto publicado, Mailpit UI en 8126). El desarrollo diario sigue con `compose.dev.yaml` + `npm run dev`.
+- **Ningún valor sale de `${...}`**: docker compose lee solo el `.env` de la carpeta, que tiene el SMTP real. Así el stack nunca manda mails de verdad. La `JWT_SECRET` y la clave del admin (`admin-stack`) son solo de este stack.
+- `mem_limit: 512m`, igual que Render.
+- Verificado desde cero: API lista en ~7 s, Flyway V1 aplicada, login del admin, alta de categoría y mueble con foto, catálogo, consulta pública, respuesta del admin con mail recibido en Mailpit. Memoria de la app: ~267 MB de 512.
+
+### Bug encontrado (solo en la imagen/jar, no en `npm run dev`) → **resuelto** (ver sección 15)
+- **El aviso al admin de "consulta nueva" no se envía**: log `Error al avisar la nueva consulta: Not provider of jakarta.mail.util.StreamProvider was found`. `EmailServiceImpl.notificarNuevaConsulta` manda el mail en `CompletableFuture.runAsync` (ForkJoinPool común), cuyo hilo no tiene el classloader de Spring Boot cuando la app corre como jar, y Jakarta Mail no encuentra su proveedor. El error queda en un `catch` que solo loguea: en producción el admin no recibiría ningún aviso. La respuesta a la consulta (síncrona) sí funciona.
+- Arreglo propuesto: mandar el aviso con `@Async` de Spring (`@EnableAsync` + executor propio) en lugar de `CompletableFuture.runAsync`, y verificarlo con el stack de este compose (el error no se reproduce fuera del jar).
+
+---
+
+## 15. Aviso de consulta nueva con @Async (2026-11-06)
+
+- **Arreglo** del bug de la sección 14: `EmailServiceImpl.notificarNuevaConsulta` ya no usa `CompletableFuture.runAsync` (ForkJoinPool común, sin el classloader de la app dentro del jar). Ahora es `@Async` con el executor de Spring Boot; `@EnableAsync` está en `Config/AsyncConfig.java`. Sigue sin demorar la respuesta del formulario y, si el SMTP falla, solo se loguea.
+- Test: `Service/EmailServiceAsyncTest` (el aviso se manda, en otro hilo que no es del ForkJoinPool y con el classloader de la app; un SMTP caído no propaga el error). Suite: 330 en verde.
+- Verificado en el jar real con `docker compose up --build`: dos consultas (una por mueble y una general) generaron los dos avisos en Mailpit y el log dice "Aviso de nueva consulta enviado".
+
+---
+
+## 16. Casillas de avisos administrables desde Mi Perfil (2026-11-06)
+
+**Para qué**: que el admin (el hermano) elija a qué mails llega el aviso de "consulta nueva", y los cambie solo, sin tocar Render.
+
+- **Cómo funciona el mail** (aclarado con el usuario): `MAIL_USERNAME`/`MAIL_PASSWORD` son la cuenta que **envía** (se configura una sola vez en Render). Las casillas que **reciben** son solo direcciones: no necesitan contraseña.
+- **Backend**:
+  - Tabla `destinatario_notificacion` (migración **V2**), mail único sin importar mayúsculas.
+  - `NotificacionService` + `NotificacionController` en `/api/v1/notificaciones` (solo ADMIN): `GET` (lista + `usaRespaldo`), `POST {mail}` (valida formato, guarda en minúsculas, 409 si ya está), `DELETE /{id}`, `POST /{id}/prueba` (manda un mail de prueba en el momento; 502 si el SMTP falla).
+  - El aviso de consulta nueva va a **todas** las casillas cargadas. Si no hay ninguna, va a `MAIL_ADMIN` (respaldo): nunca se queda sin destino.
+- **Frontend** (`MDZFrontEnd`): sección "Avisos de consultas nuevas" en Mi Perfil, **solo para ADMIN** (`NotificacionesPerfil.tsx`, `services/NotificacionService.ts`): lista, agregar, "Probar" y quitar con confirmación. Avisa cuando se está usando la casilla de respaldo.
+- **Entrega al hermano**: entra a Mi Perfil, agrega su mail, toca "Probar", y quita los mails de prueba. Conviene además poner su mail en `MAIL_ADMIN` en Render como respaldo.
+
+### Bug encontrado y arreglado: los errores llegaban como 403
+- En el servidor real, cuando un controller respondía con error vía excepción (409, 404, 400 por JSON mal formado...), Spring reenvía internamente a `/error`, que no era público: la seguridad lo bloqueaba y el cliente recibía **403**. MockMvc no hace ese reenvío, por eso los tests no lo veían.
+- Arreglo: `/error` público en `SecurityConfig` (no expone mensajes ni trazas). Test nuevo con servidor HTTP real: `security/ErroresServidorRealTest` (falla sin el arreglo, pasa con él).
+
+### Verificación
+- Suite: **360 tests** en verde (11 de flujo de notificaciones, 12 casos más en la matriz, 2 más del servicio de mail, 5 con servidor real).
+- Real, con back local + front Vite + Chromium headless: la sección aparece solo para el admin; agregar dos casillas, duplicado ("Ese mail ya está en la lista"), mail inválido bloqueado, "Probar" (llega a Mailpit), una consulta pública manda el aviso a las dos casillas, quitar con confirmación. En 375 px no hay scroll horizontal. Los datos de prueba se borraron de la base de desarrollo.
+
+### Encontrado de paso (preexistente, no se tocó)
+- `GET /api/v1/usuarios/showProfile` es solo ADMIN: un usuario con rol CLIENTE recibe 403 en Mi Perfil (la página igual muestra datos guardados en el navegador).
+- El sitio hoy no tiene modo claro activo en el código (la sección 7 lo menciona, pero no se encontró el toggle `mdz-theme`/`mdz-light`).
+
+---
+
+## 17. CI del frontend y test intermitente del CI del backend (2026-11-07)
+
+- **Frontend**: `MDZFrontEnd/.github/workflows/ci.yml`, job `build` (mismo nombre que el backend). En PR a `master` y push a `master`: Node 22, `npm ci` y `npm run build` (incluye `tsc`, así que un error de tipos frena el merge). Simulado en Linux con Node 22 desde cero: compila. **Pendiente**: proteger `master` del frontend exigiendo el check `build`, igual que en el backend.
+- **Backend, falla del primer PR**: `EmailServiceAsyncTest.sinNingunaCasillaNoSeIntentaMandarNada` fallaba en Linux. El test "si el SMTP falla" disparaba un envío en segundo plano y terminaba sin esperarlo; ese envío caía dentro del test siguiente. En Windows el orden de ejecución lo escondía. Reproducido en un contenedor Linux: 6/6 fallas con el test viejo, 6/6 bien con el arreglo (el test ahora espera su propio envío). Suite completa en Linux: 360 en verde.
+- Actions actualizadas a `checkout@v5` y `setup-java@v5` (las v4 corren sobre Node 20, deprecado en los runners).

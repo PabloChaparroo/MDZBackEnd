@@ -3,9 +3,11 @@ package com.Capinteria.carpinteria.Config;
 
 import com.Capinteria.carpinteria.Jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,7 +18,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -30,13 +32,22 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .cors(Customizer.withDefaults())
             .authorizeHttpRequests(authRequest -> authRequest
 
                 //.requestMatchers(new AntPathRequestMatcher("/**")).permitAll()
                 // === RUTAS DE AUTENTICACIÓN ===
                 
                 .requestMatchers(new AntPathRequestMatcher("/auth/**")).permitAll()
+
+                // === PÁGINA DE ERROR DE SPRING ===
+                // Cuando un controller responde con error (ResponseStatusException, JSON inválido, etc.)
+                // el servidor reenvía internamente a /error. Si /error no es público, la seguridad lo
+                // bloquea y el cliente recibe 403 en vez del 400/404/409 real. No expone mensajes ni trazas.
+                .requestMatchers(new AntPathRequestMatcher("/error")).permitAll()
+
+                // === PING (health check y keep-alive, no toca la base) ===
+                .requestMatchers(new AntPathRequestMatcher("/ping", "GET")).permitAll()
 
                 // === ARCHIVOS ESTÁTICOS ===
                 .requestMatchers(new AntPathRequestMatcher("/static/**")).permitAll()
@@ -75,6 +86,9 @@ public class SecurityConfig {
                
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/usuarios/**")).hasAuthority("ADMIN")
 
+                // === NOTIFICACIONES (casillas que reciben el aviso de consulta nueva) ===
+                .requestMatchers(new AntPathRequestMatcher("/api/v1/notificaciones/**")).hasAuthority("ADMIN")
+
                 // === CUALQUIER OTRA RUTA - REQUIERE AUTENTICACIÓN ===
                 .anyRequest().authenticated()
             )
@@ -83,22 +97,24 @@ public class SecurityConfig {
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-@Bean
-CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
-    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"));
-    configuration.setAllowedOrigins(Arrays.asList(
-        "http://localhost:8080",
-        "http://localhost:5173",
-        "http://localhost:5175",
-        "https://mdzmuebles.up.railway.app"
-    ));
-    configuration.setAllowCredentials(true);
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration);
-    return source;
-}
+    /**
+     * Única definición de CORS del backend. Los orígenes permitidos salen de la propiedad
+     * cors.allowed-origins (en producción, la variable de entorno CORS_ALLOWED_ORIGINS,
+     * separada por comas). Si está vacía no se permite ningún origen (falla cerrado).
+     * Sin credenciales: el front manda el JWT en el header Authorization, no en cookies.
+     */
+    @Bean
+    public UrlBasedCorsConfigurationSource corsConfigurationSource(@Value("${cors.allowed-origins:}") List<String> allowedOrigins) {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(allowedOrigins.stream().map(String::trim).filter(o -> !o.isEmpty()).toList());
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(false);
+        configuration.setMaxAge(3600L);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 
 
 }

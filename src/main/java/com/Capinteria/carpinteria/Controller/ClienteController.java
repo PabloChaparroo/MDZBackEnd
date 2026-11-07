@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.format.DateTimeFormatter;
 
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping(path = "api/v1/cliente")
 public class ClienteController extends BaseControllerImpl<Cliente, ClienteServiceImpl> {
 

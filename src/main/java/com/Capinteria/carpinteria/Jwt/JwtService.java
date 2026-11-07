@@ -7,6 +7,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.security.Key;
 import java.util.Date;
@@ -21,7 +22,37 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY="586E3272357538782F413F4428472B4B6250655368566B597033733676397924";
+    /** Mínimo para HS256: 256 bits. */
+    private static final int MIN_KEY_BYTES = 32;
+
+    private final Key signingKey;
+
+    /**
+     * La clave sale de la propiedad jwt.secret (en producción, la variable de entorno JWT_SECRET).
+     * Se valida al arrancar: sin clave, o con una clave débil, la app no levanta.
+     */
+    public JwtService(@Value("${jwt.secret:}") String secret) {
+        this.signingKey = buildKey(secret);
+    }
+
+    static Key buildKey(String secret) {
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalStateException(
+                "Falta la clave de firma de JWT: definí la variable de entorno JWT_SECRET "
+                + "(Base64 de al menos 32 bytes aleatorios, por ejemplo: openssl rand -base64 32).");
+        }
+        byte[] keyBytes;
+        try {
+            keyBytes = Decoders.BASE64.decode(secret.trim());
+        } catch (RuntimeException e) {
+            throw new IllegalStateException("JWT_SECRET no es Base64 válido.", e);
+        }
+        if (keyBytes.length < MIN_KEY_BYTES) {
+            throw new IllegalStateException("JWT_SECRET es demasiado corta: tiene " + keyBytes.length
+                + " bytes y HS256 necesita al menos " + MIN_KEY_BYTES + ".");
+        }
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
 
 
     public String getToken(UserDetails user) {
@@ -44,8 +75,7 @@ public class JwtService {
     }
 
     private Key getKey() {
-        byte[] keyBytes= Decoders.BASE64.decode(SECRET_KEY);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return signingKey;
     }
 
     public String getUsernameFromToken(String token) {
