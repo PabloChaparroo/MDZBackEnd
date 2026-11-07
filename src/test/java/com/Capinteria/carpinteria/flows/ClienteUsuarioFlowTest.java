@@ -18,6 +18,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 /** Endpoints de clientes y usuarios del panel (todos solo ADMIN). */
+// El análisis de nulos de Eclipse marca los valores sin anotar que se pasan a APIs de Spring
+// anotadas @NonNull (MediaType, String, ids...). Nunca son null acá; mismo criterio que el resto del proyecto.
+@SuppressWarnings("null")
 class ClienteUsuarioFlowTest extends IntegrationTestBase {
 
     private MvcResult crearCliente(String nombre, String apellido, String mail) throws Exception {

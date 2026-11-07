@@ -26,6 +26,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  *
  * Si alguien cambia SecurityConfig y abre o cierra una ruta sin querer, este test falla.
  */
+// El análisis de nulos de Eclipse marca los valores sin anotar que se pasan a APIs de Spring
+// anotadas @NonNull (MediaType, String, ids...). Nunca son null acá; mismo criterio que el resto del proyecto.
+@SuppressWarnings("null")
 class SecurityMatrixTest extends IntegrationTestBase {
 
     private static final String ID = "999999"; // id que no existe: nada real se modifica ni se borra

@@ -17,6 +17,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 /**
  * CORS: solo los orígenes de cors.allowed-origins (en tests, https://front.mdz.test) pueden llamar a la API.
  */
+// El análisis de nulos de Eclipse marca los valores sin anotar que se pasan a APIs de Spring
+// anotadas @NonNull (MediaType, String, ids...). Nunca son null acá; mismo criterio que el resto del proyecto.
+@SuppressWarnings("null")
 class CorsTest extends IntegrationTestBase {
 
     private static final String FRONT = "https://front.mdz.test";

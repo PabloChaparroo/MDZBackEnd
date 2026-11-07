@@ -38,6 +38,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * - El envío de mails está reemplazado por un mock: ningún test manda mails reales.
  * - Todas las subclases comparten esta misma configuración, así Spring reutiliza un solo contexto.
  */
+// El análisis de nulos de Eclipse marca los valores sin anotar que se pasan a APIs de Spring
+// anotadas @NonNull (MediaType, String, ids...). Nunca son null acá; mismo criterio que el resto del proyecto.
+@SuppressWarnings("null")
 @SpringBootTest
 @AutoConfigureMockMvc
 public abstract class IntegrationTestBase {

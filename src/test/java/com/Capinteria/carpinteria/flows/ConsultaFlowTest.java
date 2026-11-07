@@ -24,6 +24,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 /** Formularios de consulta (Home y detalle de mueble) y respuesta por mail desde el panel. */
+// El análisis de nulos de Eclipse marca los valores sin anotar que se pasan a APIs de Spring
+// anotadas @NonNull (MediaType, String, ids...). Nunca son null acá; mismo criterio que el resto del proyecto.
+@SuppressWarnings("null")
 class ConsultaFlowTest extends IntegrationTestBase {
 
     private MvcResult crearConsulta(String nombre, String mail, Long muebleId, String mensaje) throws Exception {
