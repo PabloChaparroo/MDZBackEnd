@@ -62,11 +62,20 @@ class EmailServiceAsyncTest {
     }
 
     @Test
-    void siElSmtpFallaElAvisoNoPropagaElError() {
-        doAnswer(inv -> { throw new RuntimeException("SMTP caído"); }).when(mailSender).send(any(SimpleMailMessage.class));
+    void siElSmtpFallaElAvisoNoPropagaElError() throws Exception {
+        CompletableFuture<Void> intentado = new CompletableFuture<>();
+        doAnswer(inv -> {
+            intentado.complete(null);
+            throw new RuntimeException("SMTP caído");
+        }).when(mailSender).send(any(SimpleMailMessage.class));
 
         // No tiene que lanzar: el formulario del cliente no puede fallar por el aviso
         emailService.notificarNuevaConsulta("Ana", "ana@cliente.test", "", "Hola", null);
+
+        // Esperar a que el envío en segundo plano termine: si no, puede caer en medio del
+        // test siguiente y romper su verificación (falla intermitente vista en el CI).
+        intentado.get(10, TimeUnit.SECONDS);
+        Thread.sleep(200);
     }
 
     @Test
