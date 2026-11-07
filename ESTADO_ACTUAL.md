@@ -382,3 +382,15 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - **Frontend**: `MDZFrontEnd/.github/workflows/ci.yml`, job `build` (mismo nombre que el backend). En PR a `master` y push a `master`: Node 22, `npm ci` y `npm run build` (incluye `tsc`, así que un error de tipos frena el merge). Simulado en Linux con Node 22 desde cero: compila. **Pendiente**: proteger `master` del frontend exigiendo el check `build`, igual que en el backend.
 - **Backend, falla del primer PR**: `EmailServiceAsyncTest.sinNingunaCasillaNoSeIntentaMandarNada` fallaba en Linux. El test "si el SMTP falla" disparaba un envío en segundo plano y terminaba sin esperarlo; ese envío caía dentro del test siguiente. En Windows el orden de ejecución lo escondía. Reproducido en un contenedor Linux: 6/6 fallas con el test viejo, 6/6 bien con el arreglo (el test ahora espera su propio envío). Suite completa en Linux: 360 en verde.
 - Actions actualizadas a `checkout@v5` y `setup-java@v5` (las v4 corren sobre Node 20, deprecado en los runners).
+
+---
+
+## 18. Mails por la API de Gmail en producción (2026-11-07)
+
+- **Por qué**: el plan gratis de Render bloquea la salida a los puertos SMTP (25, 465, 587) desde septiembre de 2025. Brevo/Resend gratis no sirven sin dominio propio (Resend solo manda a tu propia casilla; Brevo reescribe un remitente @gmail.com). Decisión del usuario: $0, remitente = Gmail nuevo del negocio **mdzmuebles.web@gmail.com**, enviando por la **API HTTP de Gmail** (HTTPS, no bloqueada).
+- **Código**: interfaz `Service/correo/CorreoSender` con dos transportes elegidos por `MAIL_PROVIDER` (`mdz.mail.proveedor`):
+  - `smtp` (por defecto): `SmtpCorreoSender` con JavaMailSender. Local (Mailpit), tests y docker-compose.
+  - `gmail-api`: `GmailApiCorreoSender`. Con `GMAIL_CLIENT_ID/SECRET/REFRESH_TOKEN` pide un access token (se reutiliza ~1 h) y manda el MIME en base64url a `users/me/messages/send`. Sin credenciales la app no arranca. Si Google rechaza, lanza excepción (la respuesta a una consulta no se guarda).
+- **Token**: `node scripts/obtener-token-gmail.js` (una vez): pide Client ID/Secret, abre el navegador para autorizar la cuenta remitente, imprime el refresh token y manda un mail de prueba.
+- **Google Cloud**: proyecto con Gmail API habilitada, pantalla de consentimiento **External** en estado **In production** (en "Testing" el refresh token vence a los 7 días). Sin verificar: muestra advertencia "app no verificada" al autorizar (una sola vez; límite de 100 usuarios, usa 1). El token se invalida si se revoca el acceso o se cambia la contraseña de la cuenta → volver a correr el script.
+- Tests: `Service/correo/GmailApiCorreoSenderTest` (5, con Google simulado: MIME con tildes, reutiliza token, errores claros). Suite: 365 en verde. Arranque verificado: sin credenciales no levanta; con credenciales levanta normal.
