@@ -15,7 +15,7 @@
 - **Base de datos**: PostgreSQL 16 (Docker, `compose.dev.yaml`, `localhost:5436`, base/usuario/clave `mdzmueblesbd`/`mdz`/`mdz`). Migraciones con Flyway en `src/main/resources/db/migration/`.
 - **Mail de desarrollo**: Mailpit (SMTP fake) vía Docker. UI web: `http://localhost:8125`. SMTP en puerto `1125` (remapeado por conflicto con otro proyecto en la misma máquina).
 - **Orquestación local**: `npm run dev` (script `scripts/dev.js`) levanta Docker (PostgreSQL + Mailpit) y después `mvnw spring-boot:run -Dspring-boot.run.profiles=local`.
-- **Rama de trabajo activa**: `deploy`.
+- **Ramas** (desde 2026-11-07, en los dos repos): `master` = producción (protegida: solo por PR con el check `build` en verde; Render y Cloudflare Pages despliegan desde acá) y `develop` = rama de trabajo. Flujo: commitear en `develop`, PR `develop → master` con "Create a merge commit", y después `git pull origin master` en `develop`. La vieja `develop` se borró y `deploy` se renombró a `develop`.
 
 ---
 
