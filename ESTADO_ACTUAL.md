@@ -374,3 +374,11 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 ### Encontrado de paso (preexistente, no se tocó)
 - `GET /api/v1/usuarios/showProfile` es solo ADMIN: un usuario con rol CLIENTE recibe 403 en Mi Perfil (la página igual muestra datos guardados en el navegador).
 - El sitio hoy no tiene modo claro activo en el código (la sección 7 lo menciona, pero no se encontró el toggle `mdz-theme`/`mdz-light`).
+
+---
+
+## 17. CI del frontend y test intermitente del CI del backend (2026-11-07)
+
+- **Frontend**: `MDZFrontEnd/.github/workflows/ci.yml`, job `build` (mismo nombre que el backend). En PR a `master` y push a `master`: Node 22, `npm ci` y `npm run build` (incluye `tsc`, así que un error de tipos frena el merge). Simulado en Linux con Node 22 desde cero: compila. **Pendiente**: proteger `master` del frontend exigiendo el check `build`, igual que en el backend.
+- **Backend, falla del primer PR**: `EmailServiceAsyncTest.sinNingunaCasillaNoSeIntentaMandarNada` fallaba en Linux. El test "si el SMTP falla" disparaba un envío en segundo plano y terminaba sin esperarlo; ese envío caía dentro del test siguiente. En Windows el orden de ejecución lo escondía. Reproducido en un contenedor Linux: 6/6 fallas con el test viejo, 6/6 bien con el arreglo (el test ahora espera su propio envío). Suite completa en Linux: 360 en verde.
+- Actions actualizadas a `checkout@v5` y `setup-java@v5` (las v4 corren sobre Node 20, deprecado en los runners).
