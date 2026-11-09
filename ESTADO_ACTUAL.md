@@ -394,3 +394,10 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - **Token**: `node scripts/obtener-token-gmail.js` (una vez): pide Client ID/Secret, abre el navegador para autorizar la cuenta remitente, imprime el refresh token y manda un mail de prueba.
 - **Google Cloud**: proyecto con Gmail API habilitada, pantalla de consentimiento **External** en estado **In production** (en "Testing" el refresh token vence a los 7 días). Sin verificar: muestra advertencia "app no verificada" al autorizar (una sola vez; límite de 100 usuarios, usa 1). El token se invalida si se revoca el acceso o se cambia la contraseña de la cuenta → volver a correr el script.
 - Tests: `Service/correo/GmailApiCorreoSenderTest` (5, con Google simulado: MIME con tildes, reutiliza token, errores claros). Suite: 365 en verde. Arranque verificado: sin credenciales no levanta; con credenciales levanta normal.
+
+## 15b. Descripción opcional y borrado definitivo de muebles (2026-11-08)
+
+- La descripción del mueble es opcional (el backend y la columna ya lo permitían; se quitó el `required` del formulario del frontend). La ficha pública no muestra el párrafo si está vacía.
+- `DELETE /api/v1/mueble/eliminar/{id}` (y el `DELETE /api/v1/mueble/{id}` heredado, que ahora hace lo mismo) borra **definitivamente** un mueble que ya está dado de baja, junto con sus imágenes (`mueble_imagenes`) y sus consultas. Si el mueble sigue activo responde 400. Los clientes que consultaron no se borran. En el panel aparece un botón de papelera en la lista «Mostrar solo muebles dados de baja».
+- Categorías: la baja lógica se rechaza si la categoría tiene **cualquier** mueble asociado (activo o dado de baja, la query no filtra por `fecha_baja`). No existe borrado físico de categorías en el panel; el `DELETE /api/v1/categoria/{id}` heredado de `BaseController` fallaría por la FK `fk_mueble_categoria`.
+

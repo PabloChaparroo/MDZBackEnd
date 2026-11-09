@@ -38,6 +38,12 @@ public interface MuebleService extends BaseService<Mueble, Long> {
      * @throws RuntimeException si el mueble no existe o ya está dado de baja
      */
     boolean bajaLogica(Long id);
+
+    /**
+     * Elimina de la base un mueble que ya está dado de baja, junto con sus imágenes y sus consultas.
+     * @throws RuntimeException si no existe o sigue activo
+     */
+    void eliminarDefinitivamente(Long id);
     
     /**
      * Obtiene todas las imágenes de un mueble específico

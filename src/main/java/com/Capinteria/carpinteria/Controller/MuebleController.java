@@ -47,10 +47,22 @@ public class MuebleController extends BaseControllerImpl<Mueble, MuebleServiceIm
         return super.update(id, entity);
     }
 
+    // Borrado definitivo: solo muebles ya dados de baja. Elimina también sus imágenes y consultas.
     @Override
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        return super.delete(id);
+        return eliminarDefinitivamente(id);
+    }
+
+    @DeleteMapping("/eliminar/{id}")
+    public ResponseEntity<?> eliminarDefinitivamente(@PathVariable Long id) {
+        try {
+            muebleService.eliminarDefinitivamente(id);
+            return ResponseEntity.ok("{\"mensaje\":\"Mueble eliminado definitivamente\",\"muebleId\":" + id + "}");
+        } catch (RuntimeException e) {
+            logger.error("[API-MUEBLE] No se pudo eliminar el mueble {}: {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\":\"" + e.getMessage() + "\"}");
+        }
     }
 
     private static final Logger logger = LoggerFactory.getLogger(MuebleController.class);
