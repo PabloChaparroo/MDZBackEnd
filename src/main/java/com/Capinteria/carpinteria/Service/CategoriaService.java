@@ -13,6 +13,12 @@ public interface CategoriaService extends BaseService<Categoria, Long> {
      * @throws RuntimeException si la categoría no existe, ya está dada de baja o tiene muebles asociados
      */
     boolean bajaLogica(Long id);
+
+    /**
+     * Elimina de la base una categoría que ya está dada de baja.
+     * @throws RuntimeException si no existe, sigue activa o aún tiene muebles asociados
+     */
+    void eliminarDefinitivamente(Long id);
     
     /**
      * Crea una nueva categoría estableciendo automáticamente la fecha de alta

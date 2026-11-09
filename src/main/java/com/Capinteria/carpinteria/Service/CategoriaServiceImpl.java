@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,6 +32,22 @@ public class CategoriaServiceImpl extends BaseSeriviceImpl<Categoria, Long> impl
     public CategoriaServiceImpl(BaseRepository<Categoria, Long> baseRepository, CategoriaRepository categoriaRepository) {
         super(baseRepository);
         this.categoriaRepository = categoriaRepository;
+    }
+
+    @Override
+    @Transactional
+    public void eliminarDefinitivamente(Long id) {
+        Categoria categoria = categoriaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("La categoría no existe"));
+        if (categoria.getFechaBajaCategoria() == null) {
+            throw new RuntimeException("Solo se puede eliminar definitivamente una categoría que ya fue dada de baja");
+        }
+        long muebles = categoriaRepository.countMueblesByCategoria(id);
+        if (muebles > 0) {
+            throw new RuntimeException("No se puede eliminar la categoría porque todavía tiene " + muebles + " muebles asociados");
+        }
+        categoriaRepository.delete(categoria);
+        logger.info("[ELIMINAR-CATEGORIA] Categoría {} eliminada definitivamente", id);
     }
 
     @Override
