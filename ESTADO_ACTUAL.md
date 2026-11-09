@@ -408,3 +408,13 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - **Falla en el primer deploy de Render**: Flyway no pudo conectar a Neon: `IllegalArgumentException: Argument 'iteration must be >= 4096' is not valid` dentro de la autenticación SCRAM.
 - **Causa**: Spring Boot 3.2.3 trae pgjdbc **42.6.1**, que incluye scram 2.x con un chequeo que exige al menos 4096 iteraciones; Neon usa menos. Verificado con código: el `ServerFirstMessage` de 42.6.1 rechaza `i=1` con ese mismo error y el de **42.7.14** (scram-client 3.2) lo acepta.
 - **Arreglo**: `<postgresql.version>42.7.14</postgresql.version>` en el `pom.xml`. Suite: 365 en verde.
+
+---
+
+## 20. Producción en marcha y ajustes del primer uso (2026-11-09)
+
+- **URLs**: frontend `https://mdzmuebles.pages.dev` (Cloudflare Pages, rama `master`, build `npm run build`, salida `dist`, `NODE_VERSION=22`); backend `https://mdzbackend.onrender.com` (Render free, Docker, región Virginia, health check `/ping`); base en Neon (us-east-1, conexión directa con `sslmode=require`).
+- **Keep-alive**: GitHub Actions `despertar-render.yml` a las 07:30 ART (espera hasta que Render responda) + cron-job.org `50 7 * * *` y `*/10 8-23 * * *` sobre `/ping`. Render duerme de 00:00 a 07:30.
+- **CORS con comodín**: Cloudflare Pages da a cada deploy una dirección propia (`https://<hash>.mdzmuebles.pages.dev`); el login desde esa dirección fallaba por CORS. Ahora se usan `allowedOriginPatterns`, así que `CORS_ALLOWED_ORIGINS` acepta `https://*.mdzmuebles.pages.dev` además del origen exacto. Test nuevo en `CorsTest` (acepta los deploys, rechaza dominios parecidos y otros proyectos de pages.dev). Valor en Render: `https://mdzmuebles.pages.dev,https://*.mdzmuebles.pages.dev`.
+- **Frontend**: página `/privacidad` (link en el footer) y botón para mostrar/ocultar la contraseña en el login.
+- **Pendiente**: publicar la app OAuth de Google (Branding con `https://mdzmuebles.pages.dev` y `/privacidad`) y generar un `GMAIL_REFRESH_TOKEN` definitivo: el actual es de modo Prueba y vence a los 7 días.
