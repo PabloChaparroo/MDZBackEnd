@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.mail.javamail.JavaMailSender;
+import com.Capinteria.carpinteria.Service.correo.CorreoSender;
 import org.springframework.stereotype.Service;
 
 
@@ -14,7 +14,8 @@ public class EmailServiceImpl implements EmailService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
 
-    private final JavaMailSender mailSender;
+    /** SMTP en local (Mailpit) o API de Gmail en producción, según MAIL_PROVIDER. */
+    private final CorreoSender correoSender;
 
     @Value("${mdz.mail.from}")
     private String remitente;
@@ -22,8 +23,8 @@ public class EmailServiceImpl implements EmailService {
     /** Casillas que reciben el aviso de consulta nueva (las cargadas en Mi Perfil, o MAIL_ADMIN de respaldo). */
     private final NotificacionService notificacionService;
 
-    public EmailServiceImpl(JavaMailSender mailSender, NotificacionService notificacionService) {
-        this.mailSender = mailSender;
+    public EmailServiceImpl(CorreoSender correoSender, NotificacionService notificacionService) {
+        this.correoSender = correoSender;
         this.notificacionService = notificacionService;
     }
 
@@ -40,7 +41,7 @@ public class EmailServiceImpl implements EmailService {
                     "Nuestra respuesta:\n" + respuesta + "\n\n" +
                     "Saludos,\nEquipo de MDZ Muebles"
             );
-            mailSender.send(mensaje);
+            correoSender.enviar(mensaje);
             logger.info("✅ [EMAIL] Respuesta enviada a: {}", mailDestino);
         } catch (Exception e) {
             logger.error("❌ [EMAIL] Error al enviar respuesta a {}: {}", mailDestino, e.getMessage());
@@ -77,7 +78,7 @@ public class EmailServiceImpl implements EmailService {
                     "Mueble: " + (nombreMueble != null ? nombreMueble : "Consulta general") + "\n\n" +
                     "Mensaje:\n" + mensajeConsulta
             );
-            mailSender.send(mensaje);
+            correoSender.enviar(mensaje);
             logger.info("✅ [EMAIL] Aviso de nueva consulta enviado");
         } catch (Exception e) {
             logger.error("❌ [EMAIL] Error al avisar la nueva consulta: {}", e.getMessage());
@@ -93,7 +94,7 @@ public class EmailServiceImpl implements EmailService {
         mensaje.setText("Este es un mail de prueba.\n\n"
                 + "Si lo recibiste, esta casilla va a recibir el aviso de cada consulta nueva que llegue desde la web.\n\n"
                 + "Equipo de MDZ Muebles");
-        mailSender.send(mensaje);
+        correoSender.enviar(mensaje);
         logger.info("✅ [EMAIL] Mail de prueba enviado a: {}", mailDestino);
     }
 }

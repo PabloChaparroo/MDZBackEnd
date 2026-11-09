@@ -19,6 +19,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 /** Alta, edición, baja lógica y todas las vistas del catálogo de muebles. */
+// El análisis de nulos de Eclipse marca los valores sin anotar que se pasan a APIs de Spring
+// anotadas @NonNull (MediaType, String, ids...). Nunca son null acá; mismo criterio que el resto del proyecto.
+@SuppressWarnings("null")
 class MuebleFlowTest extends IntegrationTestBase {
 
     private MvcResult bajaLogica(long id) throws Exception {

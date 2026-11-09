@@ -17,6 +17,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 /** ABM de categorías con baja lógica. */
+// El análisis de nulos de Eclipse marca los valores sin anotar que se pasan a APIs de Spring
+// anotadas @NonNull (MediaType, String, ids...). Nunca son null acá; mismo criterio que el resto del proyecto.
+@SuppressWarnings("null")
 class CategoriaFlowTest extends IntegrationTestBase {
 
     private MvcResult crear(String nombre) throws Exception {

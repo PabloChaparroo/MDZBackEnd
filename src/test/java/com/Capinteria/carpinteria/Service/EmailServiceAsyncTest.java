@@ -18,6 +18,9 @@ import static org.mockito.Mockito.doAnswer;
  * El aviso de consulta nueva se manda en segundo plano con el executor de Spring
  * (no en el ForkJoinPool común, donde Jakarta Mail falla cuando la app corre como jar).
  */
+// El análisis de nulos de Eclipse marca los valores sin anotar que se pasan a APIs de Spring
+// anotadas @NonNull (MediaType, String, ids...). Nunca son null acá; mismo criterio que el resto del proyecto.
+@SuppressWarnings("null")
 @SpringBootTest
 class EmailServiceAsyncTest {
 

@@ -6,6 +6,8 @@ package com.Capinteria.carpinteria.Service;
     import com.Capinteria.carpinteria.Entity.MuebleImagenes;
     import com.Capinteria.carpinteria.Repositories.BaseRepository;
     import com.Capinteria.carpinteria.Repositories.CategoriaRepository;
+    import com.Capinteria.carpinteria.Repositories.ConsultaRepository;
+    import com.Capinteria.carpinteria.Repositories.MuebleImagenesRepository;
     import com.Capinteria.carpinteria.Repositories.MuebleRepository;
     import com.fasterxml.jackson.databind.ObjectMapper;
     import org.slf4j.Logger;
@@ -17,6 +19,7 @@ package com.Capinteria.carpinteria.Service;
     import org.springframework.http.HttpStatus;
     import org.springframework.http.ResponseEntity;
     import org.springframework.stereotype.Service;
+    import org.springframework.transaction.annotation.Transactional;
     import org.springframework.web.multipart.MultipartFile;
 
     import java.io.IOException;
@@ -40,15 +43,20 @@ package com.Capinteria.carpinteria.Service;
         private final CategoriaRepository categoriaRepository;
         private final MuebleImagenesServiceImpl muebleImagenesService;
         private final ObjectMapper objectMapper;
+        private final ConsultaRepository consultaRepository;
+        private final MuebleImagenesRepository muebleImagenesRepository;
 
         @Autowired
         public MuebleServiceImpl(BaseRepository<Mueble, Long> baseRepository, MuebleRepository muebleRepository,
-                                CategoriaRepository categoriaRepository, MuebleImagenesServiceImpl muebleImagenesService, ObjectMapper objectMapper) {
+                                CategoriaRepository categoriaRepository, MuebleImagenesServiceImpl muebleImagenesService, ObjectMapper objectMapper,
+                                ConsultaRepository consultaRepository, MuebleImagenesRepository muebleImagenesRepository) {
             super(baseRepository);
             this.muebleRepository = muebleRepository;
             this.categoriaRepository = categoriaRepository;
             this.muebleImagenesService = muebleImagenesService;
             this.objectMapper = objectMapper;
+            this.consultaRepository = consultaRepository;
+            this.muebleImagenesRepository = muebleImagenesRepository;
         }
 
         @Override
@@ -402,6 +410,20 @@ package com.Capinteria.carpinteria.Service;
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("{\"error\":\"Error interno al cargar el catálogo por categoría\"}");
             }
+        }
+
+        @Override
+        @Transactional
+        public void eliminarDefinitivamente(Long id) {
+            Mueble mueble = muebleRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("El mueble no existe"));
+            if (mueble.getFechaBajaMueble() == null || mueble.getFechaBajaMueble().isEmpty()) {
+                throw new RuntimeException("Solo se puede eliminar definitivamente un mueble que ya fue dado de baja");
+            }
+            int consultas = consultaRepository.eliminarPorMueble(id);
+            int imagenes = muebleImagenesRepository.eliminarPorMueble(id);
+            muebleRepository.delete(mueble);
+            logger.info("[ELIMINAR-MUEBLE] Mueble {} eliminado definitivamente ({} consultas y {} imagenes borradas)", id, consultas, imagenes);
         }
 
         @Override

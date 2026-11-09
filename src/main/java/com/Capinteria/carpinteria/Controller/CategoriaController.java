@@ -106,6 +106,25 @@ public class CategoriaController extends BaseControllerImpl<Categoria, Categoria
         }
     }
 
+    // Borrado definitivo: solo categorías ya dadas de baja y sin muebles
+    // El DELETE /{id} heredado del controlador base también pasa por las mismas validaciones
+    @Override
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        return eliminarDefinitivamente(id);
+    }
+
+    @DeleteMapping("/eliminar/{id}")
+    public ResponseEntity<?> eliminarDefinitivamente(@PathVariable Long id) {
+        try {
+            servicio.eliminarDefinitivamente(id);
+            return ResponseEntity.ok("{\"mensaje\":\"Categoría eliminada definitivamente\"}");
+        } catch (RuntimeException e) {
+            logger.error("[API-CATEGORIA] No se pudo eliminar la categoría {}: {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\":\"" + e.getMessage() + "\"}");
+        }
+    }
+
     @DeleteMapping("/baja-logica/{id}")
     public ResponseEntity<?> bajaLogica(@PathVariable Long id) {
         logger.info("\n[API] Recibida solicitud de baja lógica para categoría ID: {}", id);

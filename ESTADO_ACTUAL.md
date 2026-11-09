@@ -15,7 +15,7 @@
 - **Base de datos**: PostgreSQL 16 (Docker, `compose.dev.yaml`, `localhost:5436`, base/usuario/clave `mdzmueblesbd`/`mdz`/`mdz`). Migraciones con Flyway en `src/main/resources/db/migration/`.
 - **Mail de desarrollo**: Mailpit (SMTP fake) vía Docker. UI web: `http://localhost:8125`. SMTP en puerto `1125` (remapeado por conflicto con otro proyecto en la misma máquina).
 - **Orquestación local**: `npm run dev` (script `scripts/dev.js`) levanta Docker (PostgreSQL + Mailpit) y después `mvnw spring-boot:run -Dspring-boot.run.profiles=local`.
-- **Rama de trabajo activa**: `deploy`.
+- **Ramas** (desde 2026-11-07, en los dos repos): `master` = producción (protegida: solo por PR con el check `build` en verde; Render y Cloudflare Pages despliegan desde acá) y `develop` = rama de trabajo. Flujo: commitear en `develop`, PR `develop → master` con "Create a merge commit", y después `git pull origin master` en `develop`. La vieja `develop` se borró y `deploy` se renombró a `develop`.
 
 ---
 
@@ -382,3 +382,29 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - **Frontend**: `MDZFrontEnd/.github/workflows/ci.yml`, job `build` (mismo nombre que el backend). En PR a `master` y push a `master`: Node 22, `npm ci` y `npm run build` (incluye `tsc`, así que un error de tipos frena el merge). Simulado en Linux con Node 22 desde cero: compila. **Pendiente**: proteger `master` del frontend exigiendo el check `build`, igual que en el backend.
 - **Backend, falla del primer PR**: `EmailServiceAsyncTest.sinNingunaCasillaNoSeIntentaMandarNada` fallaba en Linux. El test "si el SMTP falla" disparaba un envío en segundo plano y terminaba sin esperarlo; ese envío caía dentro del test siguiente. En Windows el orden de ejecución lo escondía. Reproducido en un contenedor Linux: 6/6 fallas con el test viejo, 6/6 bien con el arreglo (el test ahora espera su propio envío). Suite completa en Linux: 360 en verde.
 - Actions actualizadas a `checkout@v5` y `setup-java@v5` (las v4 corren sobre Node 20, deprecado en los runners).
+
+---
+
+## 18. Mails por la API de Gmail en producción (2026-11-07)
+
+- **Por qué**: el plan gratis de Render bloquea la salida a los puertos SMTP (25, 465, 587) desde septiembre de 2025. Brevo/Resend gratis no sirven sin dominio propio (Resend solo manda a tu propia casilla; Brevo reescribe un remitente @gmail.com). Decisión del usuario: $0, remitente = Gmail nuevo del negocio **mdzmuebles.web@gmail.com**, enviando por la **API HTTP de Gmail** (HTTPS, no bloqueada).
+- **Código**: interfaz `Service/correo/CorreoSender` con dos transportes elegidos por `MAIL_PROVIDER` (`mdz.mail.proveedor`):
+  - `smtp` (por defecto): `SmtpCorreoSender` con JavaMailSender. Local (Mailpit), tests y docker-compose.
+  - `gmail-api`: `GmailApiCorreoSender`. Con `GMAIL_CLIENT_ID/SECRET/REFRESH_TOKEN` pide un access token (se reutiliza ~1 h) y manda el MIME en base64url a `users/me/messages/send`. Sin credenciales la app no arranca. Si Google rechaza, lanza excepción (la respuesta a una consulta no se guarda).
+- **Token**: `node scripts/obtener-token-gmail.js` (una vez): pide Client ID/Secret, abre el navegador para autorizar la cuenta remitente, imprime el refresh token y manda un mail de prueba.
+- **Google Cloud**: proyecto con Gmail API habilitada, pantalla de consentimiento **External** en estado **In production** (en "Testing" el refresh token vence a los 7 días). Sin verificar: muestra advertencia "app no verificada" al autorizar (una sola vez; límite de 100 usuarios, usa 1). El token se invalida si se revoca el acceso o se cambia la contraseña de la cuenta → volver a correr el script.
+- Tests: `Service/correo/GmailApiCorreoSenderTest` (5, con Google simulado: MIME con tildes, reutiliza token, errores claros). Suite: 365 en verde. Arranque verificado: sin credenciales no levanta; con credenciales levanta normal.
+
+## 15b. Descripción opcional y borrado definitivo de muebles (2026-11-08)
+
+- La descripción del mueble es opcional (el backend y la columna ya lo permitían; se quitó el `required` del formulario del frontend). La ficha pública no muestra el párrafo si está vacía.
+- `DELETE /api/v1/mueble/eliminar/{id}` (y el `DELETE /api/v1/mueble/{id}` heredado, que ahora hace lo mismo) borra **definitivamente** un mueble que ya está dado de baja, junto con sus imágenes (`mueble_imagenes`) y sus consultas. Si el mueble sigue activo responde 400. Los clientes que consultaron no se borran. En el panel aparece un botón de papelera en la lista «Mostrar solo muebles dados de baja».
+- Categorías: la baja lógica se rechaza si la categoría tiene **cualquier** mueble asociado (activo o dado de baja). Una categoría **ya dada de baja** se puede eliminar definitivamente con `DELETE /api/v1/categoria/eliminar/{id}` (el `DELETE /{id}` heredado hace lo mismo): rechaza si sigue activa o si aún tiene muebles. En el panel, botón de papelera en «Mostrar solo categorías dadas de baja». Para liberar una categoría con muebles: eliminar definitivamente primero sus muebles dados de baja.
+
+---
+
+## 19. Driver de Postgres 42.7.14 para conectar con Neon (2026-11-09)
+
+- **Falla en el primer deploy de Render**: Flyway no pudo conectar a Neon: `IllegalArgumentException: Argument 'iteration must be >= 4096' is not valid` dentro de la autenticación SCRAM.
+- **Causa**: Spring Boot 3.2.3 trae pgjdbc **42.6.1**, que incluye scram 2.x con un chequeo que exige al menos 4096 iteraciones; Neon usa menos. Verificado con código: el `ServerFirstMessage` de 42.6.1 rechaza `i=1` con ese mismo error y el de **42.7.14** (scram-client 3.2) lo acepta.
+- **Arreglo**: `<postgresql.version>42.7.14</postgresql.version>` en el `pom.xml`. Suite: 365 en verde.

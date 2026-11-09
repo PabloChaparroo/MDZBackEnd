@@ -27,6 +27,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Si /error no fuera público, la seguridad lo convertiría en 403. MockMvc no hace ese reenvío,
  * por eso este caso necesita un servidor de verdad.
  */
+// El análisis de nulos de Eclipse marca los valores sin anotar que se pasan a APIs de Spring
+// anotadas @NonNull (MediaType, String, ids...). Nunca son null acá; mismo criterio que el resto del proyecto.
+@SuppressWarnings("null")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ErroresServidorRealTest {
 

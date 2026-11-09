@@ -17,6 +17,9 @@ import java.util.regex.Pattern;
  * Si no hay ninguna cargada se usa la de respaldo (mdz.mail.admin / variable MAIL_ADMIN),
  * así nunca se pierde un aviso por haber borrado todas.
  */
+// El análisis de nulos de Eclipse marca los valores sin anotar que se pasan a APIs de Spring
+// anotadas @NonNull (MediaType, String, ids...). Nunca son null acá; mismo criterio que el resto del proyecto.
+@SuppressWarnings("null")
 @Service
 public class NotificacionService {
 
