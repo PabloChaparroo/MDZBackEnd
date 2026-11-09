@@ -1,0 +1,37 @@
+name: Despertar Render
+
+# Render (plan gratis) duerme el backend tras 15 min sin tráfico y despertarlo tarda ~50 s.
+# cron-job.org corta a los 30 s: su primer ping del día daría timeout y, si falla muchas veces
+# seguidas, desactiva el cronjob. Este workflow despierta el backend antes, esperando lo necesario.
+#
+# Orden diario (hora Argentina):
+#   07:30  este workflow despierta Render (GitHub puede atrasarlo varios minutos)
+#   07:50  cron-job.org: primer ping (ya despierto)
+#   08:00 a 23:50  cron-job.org: ping cada 10 min (*/10 8-23 * * *)
+
+on:
+  schedule:
+    # GitHub usa UTC. 10:30 UTC = 07:30 en Argentina (UTC-3, sin horario de verano).
+    - cron: '30 10 * * *'
+  workflow_dispatch: # para probarlo a mano desde la pestaña Actions
+
+jobs:
+  despertar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Pedir /ping hasta que Render responda
+        run: |
+          URL="https://mdzbackend.onrender.com/ping"
+          for intento in $(seq 1 10); do
+            if respuesta=$(curl -sS --max-time 90 "$URL"); then
+              if [ "$respuesta" = "pong" ]; then
+                echo "Render despierto (intento $intento)"
+                exit 0
+              fi
+            fi
+            echo "Intento $intento: todavía no responde, espero 15 s..."
+            sleep 15
+          done
+          echo "Render no respondió después de 10 intentos"
+          exit 1
