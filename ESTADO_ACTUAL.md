@@ -400,3 +400,11 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - La descripción del mueble es opcional (el backend y la columna ya lo permitían; se quitó el `required` del formulario del frontend). La ficha pública no muestra el párrafo si está vacía.
 - `DELETE /api/v1/mueble/eliminar/{id}` (y el `DELETE /api/v1/mueble/{id}` heredado, que ahora hace lo mismo) borra **definitivamente** un mueble que ya está dado de baja, junto con sus imágenes (`mueble_imagenes`) y sus consultas. Si el mueble sigue activo responde 400. Los clientes que consultaron no se borran. En el panel aparece un botón de papelera en la lista «Mostrar solo muebles dados de baja».
 - Categorías: la baja lógica se rechaza si la categoría tiene **cualquier** mueble asociado (activo o dado de baja). Una categoría **ya dada de baja** se puede eliminar definitivamente con `DELETE /api/v1/categoria/eliminar/{id}` (el `DELETE /{id}` heredado hace lo mismo): rechaza si sigue activa o si aún tiene muebles. En el panel, botón de papelera en «Mostrar solo categorías dadas de baja». Para liberar una categoría con muebles: eliminar definitivamente primero sus muebles dados de baja.
+
+---
+
+## 19. Driver de Postgres 42.7.14 para conectar con Neon (2026-11-09)
+
+- **Falla en el primer deploy de Render**: Flyway no pudo conectar a Neon: `IllegalArgumentException: Argument 'iteration must be >= 4096' is not valid` dentro de la autenticación SCRAM.
+- **Causa**: Spring Boot 3.2.3 trae pgjdbc **42.6.1**, que incluye scram 2.x con un chequeo que exige al menos 4096 iteraciones; Neon usa menos. Verificado con código: el `ServerFirstMessage` de 42.6.1 rechaza `i=1` con ese mismo error y el de **42.7.14** (scram-client 3.2) lo acepta.
+- **Arreglo**: `<postgresql.version>42.7.14</postgresql.version>` en el `pom.xml`. Suite: 365 en verde.
