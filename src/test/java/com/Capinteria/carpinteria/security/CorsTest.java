@@ -95,4 +95,18 @@ class CorsTest extends IntegrationTestBase {
         assertThat(config.checkOrigin("https://www.mdz.com")).isEqualTo("https://www.mdz.com");
         assertThat(config.checkOrigin(OTRO)).isNull();
     }
+
+    @Test
+    void unComodinAceptaLosDeploysDeCloudflarePagesPeroNoOtrosDominios() {
+        CorsConfiguration config = new SecurityConfig(null, null)
+                .corsConfigurationSource(List.of("https://mdzmuebles.pages.dev", "https://*.mdzmuebles.pages.dev"))
+                .getCorsConfiguration(new MockHttpServletRequest("GET", "/x"));
+
+        assertThat(config.checkOrigin("https://mdzmuebles.pages.dev")).isEqualTo("https://mdzmuebles.pages.dev");
+        assertThat(config.checkOrigin("https://82a061b8.mdzmuebles.pages.dev")).isEqualTo("https://82a061b8.mdzmuebles.pages.dev");
+        // Que no se cuele un dominio que solo "termina parecido" ni otro proyecto de pages.dev
+        assertThat(config.checkOrigin("https://malicioso-mdzmuebles.pages.dev")).isNull();
+        assertThat(config.checkOrigin("https://otro.pages.dev")).isNull();
+        assertThat(config.checkOrigin("http://82a061b8.mdzmuebles.pages.dev")).isNull();
+    }
 }

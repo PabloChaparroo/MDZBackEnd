@@ -9,6 +9,7 @@ package com.Capinteria.carpinteria.Service;
     import com.Capinteria.carpinteria.Repositories.ConsultaRepository;
     import com.Capinteria.carpinteria.Repositories.MuebleImagenesRepository;
     import com.Capinteria.carpinteria.Repositories.MuebleRepository;
+    import com.Capinteria.carpinteria.Util.Miniaturas;
     import com.fasterxml.jackson.databind.ObjectMapper;
     import org.slf4j.Logger;
     import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ package com.Capinteria.carpinteria.Service;
     import java.time.LocalDateTime;
     import java.time.format.DateTimeFormatter;
     import java.util.ArrayList;
+    import java.util.Collection;
     import java.util.HashMap;
     import java.util.List;
     import java.util.Map;
@@ -142,6 +144,7 @@ package com.Capinteria.carpinteria.Service;
                     byte[] bytes = file.getBytes();
                     MuebleImagenes imagen = new MuebleImagenes();
                     imagen.setImagenes(bytes);
+                    imagen.setMiniatura(Miniaturas.generar(bytes));
                     
                     // Determinar si es portada
                     boolean esPortada = portadaIndex != null && i == portadaIndex;
@@ -214,6 +217,7 @@ package com.Capinteria.carpinteria.Service;
                 byte[] bytes = file.getBytes();
                 MuebleImagenes imagenes = new MuebleImagenes();
                 imagenes.setImagenes(bytes);
+                imagenes.setMiniatura(Miniaturas.generar(bytes));
                 imagenes.setEsPortada(portadaIndex != null && i == portadaIndex);
                 mueble.getImagenes().add(imagenes);
             }
@@ -324,6 +328,7 @@ package com.Capinteria.carpinteria.Service;
                 logger.info("✅ [CONSULTA-DB] Consulta ejecutada - {} muebles activos encontrados para categoría '{}'", 
                         mueblePage.getTotalElements(), categoria.getNombreCategoria());
                 
+                Map<Long, Object[]> portadas = portadasDe(mueblePage.getContent());
                 // Convertir a objetos Mueble completos con imagen de portada
                 List<Map<String, Object>> mueblesCompletos = mueblePage.getContent().stream()
                     .map(mueble -> {
@@ -346,38 +351,18 @@ package com.Capinteria.carpinteria.Service;
                             muebleCompleto.put("categoria", categoriaInfo);
                         }
                         
-                        // Solo la imagen de portada (convertida a Base64)
-                        List<MuebleImagenes> imagenes = mueble.getImagenes();
-                        if (imagenes != null && !imagenes.isEmpty()) {
-                            // Buscar la imagen de portada
-                            Optional<MuebleImagenes> imagenPortada = imagenes.stream()
-                                .filter(MuebleImagenes::isEsPortada)
-                                .findFirst();
-                            
-                            if (imagenPortada.isPresent()) {
-                                Map<String, Object> imagenPortadaInfo = new HashMap<>();
-                                imagenPortadaInfo.put("id", imagenPortada.get().getId());
-                                imagenPortadaInfo.put("imagenes", java.util.Base64.getEncoder().encodeToString(imagenPortada.get().getImagenes()));
-                                imagenPortadaInfo.put("esPortada", true);
-                                muebleCompleto.put("imagenPortada", imagenPortadaInfo);
-                                
-                                logger.debug("Imagen portada agregada para mueble ID: {}", mueble.getId());
-                            } else {
-                                // Si no hay imagen marcada como portada, tomar la primera
-                                MuebleImagenes primeraImagen = imagenes.get(0);
-                                Map<String, Object> imagenPortadaInfo = new HashMap<>();
-                                imagenPortadaInfo.put("id", primeraImagen.getId());
-                                imagenPortadaInfo.put("imagenes", java.util.Base64.getEncoder().encodeToString(primeraImagen.getImagenes()));
-                                imagenPortadaInfo.put("esPortada", primeraImagen.isEsPortada());
-                                muebleCompleto.put("imagenPortada", imagenPortadaInfo);
-                                
-                                logger.debug("Primera imagen usada como portada para mueble ID: {}", mueble.getId());
-                            }
+                        // Solo la imagen de portada (miniatura convertida a Base64)
+                        Object[] portada = portadas.get(mueble.getId());
+                        if (portada != null) {
+                            Map<String, Object> imagenPortadaInfo = new HashMap<>();
+                            imagenPortadaInfo.put("id", ((Number) portada[1]).longValue());
+                            imagenPortadaInfo.put("imagenes", portadaBase64(portada));
+                            imagenPortadaInfo.put("esPortada", Boolean.TRUE.equals(portada[2]));
+                            muebleCompleto.put("imagenPortada", imagenPortadaInfo);
                         } else {
                             muebleCompleto.put("imagenPortada", null);
-                            logger.debug("Mueble ID: {} no tiene imágenes", mueble.getId());
                         }
-                        
+
                         logger.debug("Procesado mueble completo ID: {} - {}", mueble.getId(), mueble.getNombreMueble());
                         
                         return muebleCompleto;
@@ -655,8 +640,10 @@ package com.Capinteria.carpinteria.Service;
          */
         public ResponseEntity<?> getDestacados() {
             try {
-                List<CatalogoMuebleDTO> destacados = muebleRepository.findAllById(muebleRepository.findIdsDestacados()).stream()
-                    .map(this::aDtoConPortada)
+                List<Mueble> muebles = muebleRepository.findAllById(muebleRepository.findIdsDestacados());
+                Map<Long, Object[]> portadas = portadasDe(muebles);
+                List<CatalogoMuebleDTO> destacados = muebles.stream()
+                    .map(mueble -> aDtoConPortada(mueble, portadas))
                     .collect(Collectors.toList());
                 return ResponseEntity.ok(destacados);
             } catch (Exception e) {
@@ -666,7 +653,29 @@ package com.Capinteria.carpinteria.Service;
             }
         }
 
-        private CatalogoMuebleDTO aDtoConPortada(Mueble mueble) {
+        /**
+         * Portada de cada mueble en UNA consulta, en su version miniatura. Evita recorrer mueble.getImagenes(),
+         * que traeria de la base todas las fotos originales de cada mueble solo para descartarlas.
+         * Clave: id del mueble. Valor: [mueble_id, imagen_id, es_portada, bytes].
+         */
+        private Map<Long, Object[]> portadasDe(Collection<Mueble> muebles) {
+            Map<Long, Object[]> portadas = new HashMap<>();
+            if (muebles.isEmpty()) {
+                return portadas;
+            }
+            List<Long> ids = muebles.stream().map(Mueble::getId).collect(Collectors.toList());
+            for (Object[] fila : muebleImagenesRepository.findPortadas(ids)) {
+                portadas.put(((Number) fila[0]).longValue(), fila);
+            }
+            return portadas;
+        }
+
+        private static String portadaBase64(Object[] fila) {
+            return fila == null || fila[3] == null ? null
+                : java.util.Base64.getEncoder().encodeToString((byte[]) fila[3]);
+        }
+
+        private CatalogoMuebleDTO aDtoConPortada(Mueble mueble, Map<Long, Object[]> portadas) {
             CatalogoMuebleDTO dto = CatalogoMuebleDTO.builder()
                 .id(mueble.getId())
                 .nombreMueble(mueble.getNombreMueble())
@@ -675,12 +684,7 @@ package com.Capinteria.carpinteria.Service;
                 .fechaAltaMueble(mueble.getFechaAltaMueble())
                 .nombreCategoria(mueble.getCategoria() != null ? mueble.getCategoria().getNombreCategoria() : "SIN_CATEGORIA")
                 .build();
-            mueble.getImagenes().stream()
-                .filter(imagen -> imagen.isEsPortada())
-                .findFirst()
-                .ifPresent(portada -> dto.setImagenPortada(
-                    java.util.Base64.getEncoder().encodeToString(portada.getImagenes())
-                ));
+            dto.setImagenPortada(portadaBase64(portadas.get(mueble.getId())));
             return dto;
         }
 
@@ -689,8 +693,9 @@ package com.Capinteria.carpinteria.Service;
                 Pageable pageable = PageRequest.of(pageNumber, 9, org.springframework.data.domain.Sort.by("id").descending());
                 Page<Mueble> mueblePage = muebleRepository.findByPublicarTrueAndFechaBajaMuebleIsNull(pageable);
 
+                Map<Long, Object[]> portadas = portadasDe(mueblePage.getContent());
                 List<CatalogoMuebleDTO> novedades = mueblePage.getContent().stream()
-                    .map(this::aDtoConPortada)
+                    .map(mueble -> aDtoConPortada(mueble, portadas))
                     .collect(Collectors.toList());
 
                 Map<String, Object> response = new HashMap<>();
@@ -720,6 +725,7 @@ package com.Capinteria.carpinteria.Service;
                 logger.info("✅ [CONSULTA-DB] Consulta ejecutada - {} muebles activos encontrados", 
                         mueblePage.getTotalElements());
                 
+                Map<Long, Object[]> portadas = portadasDe(mueblePage.getContent());
                 // Convertir a DTO completo con todas las imágenes
                 List<CatalogoMuebleDTO> catalogo = mueblePage.getContent().stream()
                     .map(mueble -> {
@@ -734,12 +740,7 @@ package com.Capinteria.carpinteria.Service;
                             .build();
                         
                         // Solo la portada: la galería se pide por mueble al abrir su ficha
-                        mueble.getImagenes().stream()
-                            .filter(imagen -> imagen.isEsPortada())
-                            .findFirst()
-                            .ifPresent(portada -> dto.setImagenPortada(
-                                java.util.Base64.getEncoder().encodeToString(portada.getImagenes())
-                            ));
+                        dto.setImagenPortada(portadaBase64(portadas.get(mueble.getId())));
                         
                         return dto;
                     })
@@ -837,6 +838,7 @@ package com.Capinteria.carpinteria.Service;
                         
                         MuebleImagenes nuevaImagen = MuebleImagenes.builder()
                             .imagenes(imageBytes)
+                            .miniatura(Miniaturas.generar(imageBytes))
                             .esPortada(portadaIndex != null && i == portadaIndex)
                             .build();
                         
@@ -1072,6 +1074,7 @@ package com.Capinteria.carpinteria.Service;
                     return ResponseEntity.ok(response);
                 }
                 
+                Map<Long, Object[]> portadas = portadasDe(mueblesDadosDeBaja.getContent());
                 // Convertir a DTOs con imagen de portada
                 List<CatalogoMuebleDTO> mueblesDTO = mueblesDadosDeBaja.getContent().stream()
                     .map(mueble -> {
@@ -1085,17 +1088,7 @@ package com.Capinteria.carpinteria.Service;
                             .nombreCategoria(mueble.getCategoria() != null ? mueble.getCategoria().getNombreCategoria() : "SIN_CATEGORIA")
                             .build();
                         
-                        // Obtener solo la imagen de portada
-                        if (mueble.getImagenes() != null && !mueble.getImagenes().isEmpty()) {
-                            MuebleImagenes imagenPortada = mueble.getImagenes().stream()
-                                .filter(MuebleImagenes::isEsPortada)
-                                .findFirst()
-                                .orElse(mueble.getImagenes().get(0)); // Si no hay portada, usar la primera
-                            
-                            if (imagenPortada != null) {
-                                dto.setImagenPortada(java.util.Base64.getEncoder().encodeToString(imagenPortada.getImagenes()));
-                            }
-                        }
+                        dto.setImagenPortada(portadaBase64(portadas.get(mueble.getId())));
                         
                         return dto;
                     })

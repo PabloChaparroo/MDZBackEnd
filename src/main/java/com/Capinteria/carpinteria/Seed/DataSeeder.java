@@ -90,6 +90,7 @@ public class DataSeeder implements CommandLineRunner {
                 MuebleImagenes imagen = new MuebleImagenes();
                 imagen.setEsPortada(true);
                 imagen.setImagenes(leerImagen(campos[1]));
+                imagen.setMiniatura(com.Capinteria.carpinteria.Util.Miniaturas.generar(imagen.getImagenes()));
                 savedMueble.getImagenes().add(imagen);
                 muebleImagenesRepository.save(imagen);
                 muebleRepository.save(savedMueble);

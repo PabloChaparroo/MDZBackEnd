@@ -408,3 +408,32 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - **Falla en el primer deploy de Render**: Flyway no pudo conectar a Neon: `IllegalArgumentException: Argument 'iteration must be >= 4096' is not valid` dentro de la autenticación SCRAM.
 - **Causa**: Spring Boot 3.2.3 trae pgjdbc **42.6.1**, que incluye scram 2.x con un chequeo que exige al menos 4096 iteraciones; Neon usa menos. Verificado con código: el `ServerFirstMessage` de 42.6.1 rechaza `i=1` con ese mismo error y el de **42.7.14** (scram-client 3.2) lo acepta.
 - **Arreglo**: `<postgresql.version>42.7.14</postgresql.version>` en el `pom.xml`. Suite: 365 en verde.
+
+---
+
+## 20. Producción en marcha y ajustes del primer uso (2026-11-09)
+
+- **URLs**: frontend `https://mdzmuebles.pages.dev` (Cloudflare Pages, rama `master`, build `npm run build`, salida `dist`, `NODE_VERSION=22`); backend `https://mdzbackend.onrender.com` (Render free, Docker, región Virginia, health check `/ping`); base en Neon (us-east-1, conexión directa con `sslmode=require`).
+- **Keep-alive**: GitHub Actions `despertar-render.yml` a las 07:30 ART (espera hasta que Render responda) + cron-job.org `50 7 * * *` y `*/10 8-23 * * *` sobre `/ping`. Render duerme de 00:00 a 07:30.
+- **CORS con comodín**: Cloudflare Pages da a cada deploy una dirección propia (`https://<hash>.mdzmuebles.pages.dev`); el login desde esa dirección fallaba por CORS. Ahora se usan `allowedOriginPatterns`, así que `CORS_ALLOWED_ORIGINS` acepta `https://*.mdzmuebles.pages.dev` además del origen exacto. Test nuevo en `CorsTest` (acepta los deploys, rechaza dominios parecidos y otros proyectos de pages.dev). Valor en Render: `https://mdzmuebles.pages.dev,https://*.mdzmuebles.pages.dev`.
+- **Frontend**: página `/privacidad` (link en el footer) y botón para mostrar/ocultar la contraseña en el login.
+- **Pendiente**: publicar la app OAuth de Google (Branding con `https://mdzmuebles.pages.dev` y `/privacidad`) y generar un `GMAIL_REFRESH_TOKEN` definitivo: el actual es de modo Prueba y vence a los 7 días.
+
+---
+
+## 21. Miniaturas de portada: catálogo, inicio y novedades mucho más rápidos (2026-11-12)
+
+- **Síntoma**: tras dar de alta un mueble real, su foto tardaba ~5 s en aparecer en Catálogo, Por categoría e Inicio.
+- **Causas** (las dos en `MuebleServiceImpl`):
+  1. Para elegir la portada se recorría `mueble.getImagenes()`, lo que hace que Hibernate traiga de Neon **todas las fotos originales** de cada mueble (una consulta por mueble) solo para descartar las que no son portada.
+  2. Después la portada viajaba en Base64 **a tamaño original** (hasta ~2000 px, cientos de KB cada una, +33 % por Base64) dentro del JSON, para pintarla en una tarjeta de unos 300 px. Una página de 12 muebles eran varios MB.
+- **Arreglo**:
+  - Migración `V3__miniatura_imagenes.sql`: columna `miniatura_imagenes BYTEA` en `mueble_imagenes`. En la entidad es `miniatura` con `@JsonIgnore` (no sale en la API).
+  - `Util/Miniaturas.generar(bytes)`: JPEG de hasta 640 px de lado, calidad 0,8, fondo blanco para PNG con transparencia. Devuelve `null` si no puede leer el formato o no queda más liviana (entonces se usa el original).
+  - Se genera al subir (`createMueble`, `updateMuebleImages`, `agregarImagenesMueble`, `MuebleImagenesServiceImpl.uploadImages`, `DataSeeder`).
+  - `Seed/MiniaturaBackfill`: al arrancar, en un hilo aparte y de a una foto, rellena la miniatura de las imágenes existentes (`miniatura_imagenes IS NULL`).
+  - `MuebleImagenesRepository.findPortadas(ids)`: una sola consulta por página que devuelve la portada de cada mueble (si no hay marcada, la primera) como `COALESCE(miniatura, original)`; la subconsulta elige el id sin tocar los bytea. `MuebleServiceImpl.portadasDe(...)` la usa en catálogo completo, por categoría, destacados, novedades y dados de baja. Las 3 consultas nativas de `MuebleRepository` (obtener-todos y filtro de búsqueda) también usan `COALESCE(miniatura, original)`.
+  - La ficha del mueble (`/{id}/imagenes`) sigue devolviendo las fotos originales.
+- **Frontend**: sin cambios (sigue recibiendo `imagenPortada` en Base64; ahora es la miniatura).
+- **Tests**: `MiniaturasFlowTest` (miniatura chica y con la misma proporción, archivo no imagen → sin miniatura, catálogo y por categoría devuelven la miniatura, ficha devuelve el original, la miniatura no se expone). Suite completa en verde.
+- **Al desplegar**: Flyway aplica V3 solo; las fotos ya cargadas usan el original hasta que el backfill termine (segundos) y la app puede usarse mientras tanto.

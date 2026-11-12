@@ -1,5 +1,6 @@
 package com.Capinteria.carpinteria.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -23,5 +24,9 @@ public class MuebleImagenes extends BaseEntity {
     @Column(name = "imagen_imagenes", columnDefinition = "bytea")
     private byte[] imagenes;
 
+    // Version chica (JPEG ~640px) para los listados. No se expone en la API.
+    @JsonIgnore
+    @Column(name = "miniatura_imagenes", columnDefinition = "bytea")
+    private byte[] miniatura;
 
 }
