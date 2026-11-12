@@ -437,3 +437,17 @@ El usuario trajo un diseño de referencia hecho con otra IA (Lovable, stack TanS
 - **Frontend**: sin cambios (sigue recibiendo `imagenPortada` en Base64; ahora es la miniatura).
 - **Tests**: `MiniaturasFlowTest` (miniatura chica y con la misma proporción, archivo no imagen → sin miniatura, catálogo y por categoría devuelven la miniatura, ficha devuelve el original, la miniatura no se expone). Suite completa en verde.
 - **Al desplegar**: Flyway aplica V3 solo; las fotos ya cargadas usan el original hasta que el backfill termine (segundos) y la app puede usarse mientras tanto.
+
+---
+
+## 22. Ficha del mueble: fotos como imágenes cacheables (2026-11-12)
+
+- **Síntoma**: al abrir un mueble la foto tardaba mucho (spinner varios segundos).
+- **Causa**: la ficha pedía `GET /mueble/{id}/imagenes`, que devuelve **todas las fotos originales en Base64 dentro de un JSON** (N fotos × varios MB, +33 %), y hasta que llegaba todo no se mostraba nada. Desde un link compartido era peor: `GET /mueble/{id}` traía además la entidad con todas las imágenes.
+- **Arreglo (backend, `MuebleController` / `MuebleServiceImpl`, todos GET públicos)**:
+  - `GET /mueble/{id}/ficha`: nombre, color, descripción y `fechaBajaMueble`, sin fotos.
+  - `GET /mueble/{id}/galeria`: `[{id, esPortada}]` (portada primero), por SQL sin leer los bytea.
+  - `GET /mueble/imagen/{imagenId}/archivo[?miniatura=true]`: la foto como imagen binaria (tipo detectado por los primeros bytes) con `Cache-Control: public, max-age=1 año, immutable` (una foto no cambia bajo el mismo id: al reemplazarla se crea otro id). 404 si no existe.
+  - `/{id}/imagenes` y `/{id}` se mantienen igual (los usa el panel de administración).
+- **Frontend (`ViewMueble.tsx`, `MuebleService.ts`)**: pide ficha + galería y usa `<img src=…/archivo>`: la foto principal es la portada, las miniaturas de la tira usan `?miniatura=true` con `loading="lazy"`, el pantalla completa usa el original. Mientras baja la foto principal se ve el spinner. El navegador baja las fotos en paralelo y no las vuelve a pedir en visitas siguientes.
+- **Tests**: `MiniaturasFlowTest` cubre ficha, galería (orden y sin bytes), archivo original/miniatura, cabeceras de caché y 404. Suite: 370 en verde.

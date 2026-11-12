@@ -227,6 +227,25 @@ public class MuebleController extends BaseControllerImpl<Mueble, MuebleServiceIm
         }
     }
 
+    // Ficha publica liviana: datos del mueble sin sus fotos
+    @GetMapping("/{id}/ficha")
+    public ResponseEntity<?> obtenerFicha(@PathVariable Long id) {
+        return muebleService.obtenerFicha(id);
+    }
+
+    // Ids de las fotos del mueble (portada primero); cada foto se pide aparte por /imagen/{id}/archivo
+    @GetMapping("/{id}/galeria")
+    public ResponseEntity<?> obtenerGaleria(@PathVariable Long id) {
+        return muebleService.obtenerGaleria(id);
+    }
+
+    // La foto como imagen (no JSON/Base64), cacheable por el navegador. ?miniatura=true para la version chica.
+    @GetMapping("/imagen/{imagenId}/archivo")
+    public ResponseEntity<byte[]> obtenerArchivoImagen(@PathVariable Long imagenId,
+                                                       @RequestParam(value = "miniatura", defaultValue = "false") boolean miniatura) {
+        return muebleService.obtenerArchivoImagen(imagenId, miniatura);
+    }
+
     @PutMapping("/modificar/{id}")
     public ResponseEntity<?> modificarMueble(@PathVariable Long id, @RequestBody Mueble mueble) {
         logger.info("[API-MODIFICAR] Recibida solicitud de modificacion para mueble ID: {}", id);

@@ -82,4 +82,43 @@ class MiniaturasFlowTest extends IntegrationTestBase {
         assertThat(enDetalle).as("la ficha del mueble sigue mostrando la foto original").isEqualTo(original);
         assertThat(detalle.get(0).has("miniatura")).as("la miniatura no se expone en la API").isFalse();
     }
+
+    @Test
+    void laFichaPidePorSeparadoLaGaleriaYCadaFotoComoImagenCacheable() throws Exception {
+        Categoria cat = crearCategoria("Cocinas");
+        byte[] original = fotoGrande();
+        mockMvc.perform(multipart("/api/v1/mueble/create")
+                .file(new MockMultipartFile("files", "a.jpg", "image/jpeg", "no-portada".getBytes()))
+                .file(new MockMultipartFile("files", "b.jpg", "image/jpeg", original))
+                .param("mueble", toJson(Map.of("nombreMueble", "Cocina J", "colorMueble", "Gris")))
+                .param("categoriaId", String.valueOf(cat.getId()))
+                .param("portadaIndex", "1")
+                .header(HttpHeaders.AUTHORIZATION, adminToken())).andReturn();
+        long id = jdbc.queryForObject("SELECT id FROM mueble WHERE nombre_mueble = 'Cocina J'", Long.class);
+
+        JsonNode ficha = getJson("/api/v1/mueble/" + id + "/ficha");
+        assertThat(ficha.path("nombreMueble").asText()).isEqualTo("Cocina J");
+        assertThat(ficha.has("imagenes")).isFalse();
+
+        JsonNode galeria = getJson("/api/v1/mueble/" + id + "/galeria");
+        assertThat(galeria).hasSize(2);
+        assertThat(galeria.get(0).path("esPortada").asBoolean()).as("la portada va primero").isTrue();
+        assertThat(galeria.get(0).has("imagenes")).isFalse();
+        long portadaId = galeria.get(0).path("id").asLong();
+
+        var original200 = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                .get("/api/v1/mueble/imagen/" + portadaId + "/archivo")).andReturn().getResponse();
+        assertThat(original200.getStatus()).isEqualTo(200);
+        assertThat(original200.getContentType()).isEqualTo("image/jpeg");
+        assertThat(original200.getContentAsByteArray()).isEqualTo(original);
+        assertThat(original200.getHeader("Cache-Control")).contains("max-age=31536000").contains("immutable");
+
+        var mini = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                .get("/api/v1/mueble/imagen/" + portadaId + "/archivo?miniatura=true")).andReturn().getResponse();
+        assertThat(mini.getContentAsByteArray().length).isLessThan(original.length / 4);
+
+        var inexistente = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                .get("/api/v1/mueble/imagen/999999/archivo")).andReturn().getResponse();
+        assertThat(inexistente.getStatus()).isEqualTo(404);
+    }
 }
