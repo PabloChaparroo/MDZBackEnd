@@ -28,7 +28,7 @@ public interface MuebleRepository extends BaseRepository<Mueble, Long> {
     // Consulta nativa optimizada para filtrar muebles por nombre O color con solo imagen de portada
     @Query(value = "SELECT m.id, m.nombre_mueble, m.color_mueble, " +
                    "m.descripcion, m.fecha_alta, m.fecha_modificacion, " +
-                   "c.nombre_categoria, i.imagen_imagenes as imagen_portada " +
+                   "c.nombre_categoria, COALESCE(i.miniatura_imagenes, i.imagen_imagenes) as imagen_portada " +
                    "FROM mueble m " +
                    "LEFT JOIN categoria c ON m.categoria_id = c.id " +
                    "LEFT JOIN mueble_imagenes i ON m.id = i.mueble_id AND i.es_portada = true " +
@@ -43,7 +43,7 @@ public interface MuebleRepository extends BaseRepository<Mueble, Long> {
     // Incluye categoría y solo la imagen de portada convertida automáticamente
     @Query(value = "SELECT m.id, m.nombre_mueble, m.color_mueble, " +
                    "m.descripcion, m.fecha_alta, m.fecha_modificacion, " +
-                   "c.nombre_categoria, i.imagen_imagenes as imagen_portada " +
+                   "c.nombre_categoria, COALESCE(i.miniatura_imagenes, i.imagen_imagenes) as imagen_portada " +
                    "FROM mueble m " +
                    "LEFT JOIN categoria c ON m.categoria_id = c.id " +
                    "LEFT JOIN mueble_imagenes i ON m.id = i.mueble_id AND i.es_portada = true " +
@@ -56,7 +56,7 @@ public interface MuebleRepository extends BaseRepository<Mueble, Long> {
     // IMPORTANTE: Solo devuelve muebles ACTIVOS de una categoría específica
     @Query(value = "SELECT m.id, m.nombre_mueble, m.color_mueble, " +
                    "m.descripcion, m.fecha_alta, m.fecha_modificacion, " +
-                   "c.nombre_categoria, i.imagen_imagenes as imagen_portada " +
+                   "c.nombre_categoria, COALESCE(i.miniatura_imagenes, i.imagen_imagenes) as imagen_portada " +
                    "FROM mueble m " +
                    "LEFT JOIN categoria c ON m.categoria_id = c.id " +
                    "LEFT JOIN mueble_imagenes i ON m.id = i.mueble_id AND i.es_portada = true " +

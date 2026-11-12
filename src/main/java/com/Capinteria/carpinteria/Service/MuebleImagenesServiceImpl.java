@@ -2,6 +2,7 @@ package com.Capinteria.carpinteria.Service;
 
 import com.Capinteria.carpinteria.Entity.MuebleImagenes;
 import com.Capinteria.carpinteria.Repositories.MuebleImagenesRepository;
+import com.Capinteria.carpinteria.Util.Miniaturas;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ public class MuebleImagenesServiceImpl extends BaseSeriviceImpl<MuebleImagenes, 
                     byte[] bytes = file.getBytes();
                     MuebleImagenes imagenes = new MuebleImagenes();
                     imagenes.setImagenes(bytes);
+                    imagenes.setMiniatura(Miniaturas.generar(bytes));
                     muebleImagenesRepository.save(imagenes);
                 }
                 return ResponseEntity.ok("Imágenes cargadas correctamente");
