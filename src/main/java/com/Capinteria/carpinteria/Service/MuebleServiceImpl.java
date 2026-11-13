@@ -498,6 +498,55 @@ package com.Capinteria.carpinteria.Service;
             }
         }
 
+        /** Datos del mueble sin fotos, para la ficha publica (las fotos se piden aparte, de a una). */
+        public ResponseEntity<?> obtenerFicha(Long muebleId) {
+            Mueble mueble = muebleRepository.findById(muebleId).orElse(null);
+            if (mueble == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\":\"Mueble no encontrado\"}");
+            }
+            Map<String, Object> ficha = new HashMap<>();
+            ficha.put("id", mueble.getId());
+            ficha.put("nombreMueble", mueble.getNombreMueble());
+            ficha.put("colorMueble", mueble.getColorMueble());
+            ficha.put("descripcion", mueble.getDescripcion());
+            ficha.put("fechaBajaMueble", mueble.getFechaBajaMueble());
+            return ResponseEntity.ok(ficha);
+        }
+
+        /** Lista liviana de las fotos de un mueble: solo ids y cual es la portada. */
+        public ResponseEntity<?> obtenerGaleria(Long muebleId) {
+            List<Map<String, Object>> galeria = new ArrayList<>();
+            for (Object[] fila : muebleImagenesRepository.findGaleria(muebleId)) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("id", ((Number) fila[0]).longValue());
+                item.put("esPortada", Boolean.TRUE.equals(fila[1]));
+                galeria.add(item);
+            }
+            return ResponseEntity.ok(galeria);
+        }
+
+        /** Bytes de una foto (original o miniatura) con su tipo y cache: una foto nunca cambia bajo el mismo id. */
+        public ResponseEntity<byte[]> obtenerArchivoImagen(Long imagenId, boolean miniatura) {
+            byte[] bytes = miniatura
+                ? muebleImagenesRepository.findMiniaturaOUnOriginal(imagenId)
+                : muebleImagenesRepository.findOriginal(imagenId);
+            if (bytes == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok()
+                .contentType(tipoDeImagen(bytes))
+                .cacheControl(org.springframework.http.CacheControl.maxAge(java.time.Duration.ofDays(365)).cachePublic().immutable())
+                .body(bytes);
+        }
+
+        private static org.springframework.http.MediaType tipoDeImagen(byte[] b) {
+            if (b.length > 3 && (b[0] & 0xFF) == 0xFF && (b[1] & 0xFF) == 0xD8) return org.springframework.http.MediaType.IMAGE_JPEG;
+            if (b.length > 3 && (b[0] & 0xFF) == 0x89 && b[1] == 'P') return org.springframework.http.MediaType.IMAGE_PNG;
+            if (b.length > 3 && b[0] == 'G' && b[1] == 'I' && b[2] == 'F') return org.springframework.http.MediaType.IMAGE_GIF;
+            if (b.length > 12 && b[0] == 'R' && b[1] == 'I' && b[8] == 'W' && b[9] == 'E') return org.springframework.http.MediaType.valueOf("image/webp");
+            return org.springframework.http.MediaType.APPLICATION_OCTET_STREAM;
+        }
+
         @Override
         public ResponseEntity<?> modificarMueble(Long id, Mueble muebleActualizado) {
             logger.info("[MODIFICAR-MUEBLE] Iniciando proceso de modificación para mueble ID: {}", id);

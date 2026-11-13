@@ -35,4 +35,15 @@ public interface MuebleImagenesRepository extends BaseRepository<MuebleImagenes,
            nativeQuery = true)
     List<Object[]> findPortadas(@Param("muebleIds") Collection<Long> muebleIds);
 
+    // Ids de las fotos de un mueble (portada primero), sin leer los bytea
+    @Query(value = "SELECT id, es_portada FROM mueble_imagenes WHERE mueble_id = :muebleId ORDER BY es_portada DESC, id",
+           nativeQuery = true)
+    List<Object[]> findGaleria(@Param("muebleId") Long muebleId);
+
+    @Query(value = "SELECT imagen_imagenes FROM mueble_imagenes WHERE id = :id", nativeQuery = true)
+    byte[] findOriginal(@Param("id") Long id);
+
+    @Query(value = "SELECT COALESCE(miniatura_imagenes, imagen_imagenes) FROM mueble_imagenes WHERE id = :id", nativeQuery = true)
+    byte[] findMiniaturaOUnOriginal(@Param("id") Long id);
+
 }
